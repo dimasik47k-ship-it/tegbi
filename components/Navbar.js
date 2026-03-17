@@ -44,7 +44,7 @@ const Navbar = () => {
           {/* Кнопка поддержки для десктопа */}
           <div className="hidden md:flex items-center space-x-4">
             <a
-              href="https://tegbi-support.netlify.app"
+              href="https://tegbi-support.vercel.app"
               target="_blank"
               rel="noopener noreferrer"
               className="group relative inline-flex items-center space-x-2 bg-gradient-to-r from-tg-primary to-purple-600 text-white px-6 py-2.5 rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 overflow-hidden"
