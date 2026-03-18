@@ -81,7 +81,7 @@ const Navbar = () => {
           <div className="md:hidden py-4 border-t border-gray-100 animate-slideDown absolute top-16 left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg z-50">
             <div className="flex flex-col space-y-3">
               <a
-                href="https://tegbi-support.netlify.app"
+                href="https://tegbi-support.vercel.app"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center space-x-2 text-tg-text hover:text-tg-primary transition-colors py-2 px-4 rounded-lg hover:bg-gray-50"
