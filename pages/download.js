@@ -95,7 +95,7 @@ export default function DownloadPage() {
 
                 {/* Download Button */}
                 <a
-                  href="/Tegbi-Catalog-1.0.0-Setup.exe"
+                  href="https://drive.google.com/uc?export=download&id=1KmxB7FKSF4xLNkyIRNTK3CG8Uiy-A_on"
                   download
                   className="block w-full py-4 px-6 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white text-center font-bold text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200 mb-4"
                 >
