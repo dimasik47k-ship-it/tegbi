@@ -4,8 +4,6 @@ import rehypeRaw from 'rehype-raw';
 
 /**
  * Компонент модального окна с информацией о боте
- * @param {Object} bot - Данные бота
- * @param {Function} onClose - Обработчик закрытия модального окна
  */
 const BotModal = ({ bot, onClose }) => {
   const [activeTab, setActiveTab] = useState('description');
@@ -35,30 +33,23 @@ const BotModal = ({ bot, onClose }) => {
     if (audioRef.current) {
       const oscillator = audioRef.current.createOscillator();
       const gainNode = audioRef.current.createGain();
-
       oscillator.connect(gainNode);
       gainNode.connect(audioRef.current.destination);
-
       oscillator.type = 'sine';
       oscillator.frequency.setValueAtTime(600, audioRef.current.currentTime);
       oscillator.frequency.exponentialRampToValueAtTime(800, audioRef.current.currentTime + 0.1);
-
       gainNode.gain.setValueAtTime(0.1, audioRef.current.currentTime);
       gainNode.gain.exponentialRampToValueAtTime(0.01, audioRef.current.currentTime + 0.15);
-
       oscillator.start(audioRef.current.currentTime);
       oscillator.stop(audioRef.current.currentTime + 0.15);
     }
   };
 
-  // Закрытие по клику вне окна
+  // Закрытие
   const handleOverlayClick = (e) => {
-    if (e.target === e.currentTarget) {
-      handleClose();
-    }
+    if (e.target === e.currentTarget) handleClose();
   };
 
-  // Закрытие
   const handleClose = () => {
     playClickSound();
     setContentVisible(false);
@@ -68,22 +59,14 @@ const BotModal = ({ bot, onClose }) => {
     }, 100);
   };
 
-  // Закрытие по Escape
+  // Escape для закрытия
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
-        handleClose();
-      }
-    };
+    const handleKeyDown = (e) => { if (e.key === 'Escape') handleClose(); };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Переключение вкладок
-  const handleTabChange = (tab) => {
-    playClickSound();
-    setActiveTab(tab);
-  };
+  const handleTabChange = (tab) => { playClickSound(); setActiveTab(tab); };
 
   if (!bot) return null;
 
@@ -104,18 +87,17 @@ const BotModal = ({ bot, onClose }) => {
                 src={bot.avatar?.trim() || 'https://via.placeholder.com/150?text=Bot'}
                 alt={bot.name}
                 className="w-14 h-14 rounded-full object-cover shadow-lg bg-gray-100 dark:bg-gray-700"
-                onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/150?text=Bot';
-                }}
+                onError={(e) => { e.target.src = 'https://via.placeholder.com/150?text=Bot'; }}
               />
               <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
             </div>
             <div>
+              {/* Название + бейдж верификации — ПРОВЕРЬ ЭТОТ КОНТЕЙНЕР */}
               <div className="flex items-center gap-2 flex-wrap">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
                   {bot.name}
                 </h2>
-                {/* Бейдж верификации */}
+                {/* ✅ Бейдж верификации */}
                 {bot.verified && (
                   <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm rounded-full font-medium">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
