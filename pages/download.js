@@ -10,7 +10,7 @@ export default function DownloadPage() {
           <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4h-13.05M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
         </svg>
       ),
-      downloadUrl: 'https://drive.google.com/uc?export=download&id=1KmxB7FKSF4xLNkyIRNTK3CG8Uiy-A_on',
+      downloadUrl: 'https://disk.yandex.ru/d/0MCUYlZZ4Gyx2A',
       size: '~45 MB',
       version: '1.0.0',
       badge: 'Рекомендуется',
