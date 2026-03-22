@@ -13,7 +13,7 @@ const BotModal = ({ bot, onClose }) => {
   const [contentVisible, setContentVisible] = useState(false);
   const audioRef = useRef(null);
 
-  // Создаём аудио контекст для звуков (только после первого взаимодействия)
+  // Инициализация аудио
   const initAudioContext = () => {
     if (!audioRef.current) {
       audioRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -23,13 +23,13 @@ const BotModal = ({ bot, onClose }) => {
     }
   };
 
-  // Анимация появления модального окна
+  // Анимация появления
   useEffect(() => {
     setIsVisible(true);
     setTimeout(() => setContentVisible(true), 100);
   }, []);
 
-  // Воспроизведение звука при клике
+  // Звук при клике
   const playClickSound = () => {
     initAudioContext();
     if (audioRef.current) {
@@ -51,35 +51,32 @@ const BotModal = ({ bot, onClose }) => {
     }
   };
 
-  // Обработка клика вне области модального окна
+  // Закрытие по клику вне окна
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
       handleClose();
     }
   };
 
-  // Обработка закрытия модального окна
+  // Закрытие
   const handleClose = () => {
     playClickSound();
     setContentVisible(false);
     setTimeout(() => {
       setIsVisible(false);
-      setTimeout(onClose, 300); // Ждем завершения анимации
+      setTimeout(onClose, 300);
     }, 100);
   };
 
-  // Обработка нажатия клавиши Escape
+  // Закрытие по Escape
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
         handleClose();
       }
     };
-
     document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
+    return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Переключение вкладок
@@ -92,95 +89,111 @@ const BotModal = ({ bot, onClose }) => {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay transition-opacity duration-300 ${isVisible ? 'opacity-100' : 'opacity-0'} bg-black/50 backdrop-blur-sm`}
       onClick={handleOverlayClick}
     >
       <div
-        className={`bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-95'} ${contentVisible ? 'opacity-100' : 'opacity-0'}`}
+        className={`bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden transform transition-all duration-300 ${isVisible ? 'scale-100' : 'scale-95'} ${contentVisible ? 'opacity-100' : 'opacity-0'} border border-gray-100 dark:border-gray-700`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Декоративный градиентный фон */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-50 to-purple-50 opacity-50 pointer-events-none" />
-
-        {/* Заголовок модального окна */}
-        <div className="relative flex items-center justify-between p-6 border-b border-gray-100">
+        {/* Шапка */}
+        <div className="relative flex items-center justify-between p-6 border-b border-gray-100 dark:border-gray-700">
           <div className="flex items-center space-x-4">
             <div className="relative">
               <img
-                src={bot.avatar}
+                src={bot.avatar?.trim() || 'https://via.placeholder.com/150?text=Bot'}
                 alt={bot.name}
-                className="w-14 h-14 rounded-full object-cover shadow-lg"
+                className="w-14 h-14 rounded-full object-cover shadow-lg bg-gray-100 dark:bg-gray-700"
                 onError={(e) => {
                   e.target.src = 'https://via.placeholder.com/150?text=Bot';
                 }}
               />
-              {/* Индикатор онлайн-статуса */}
-              <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
+              <div className="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white dark:border-gray-800" />
             </div>
             <div>
-              <h2 className="text-2xl font-bold text-tg-text">{bot.name}</h2>
+              <div className="flex items-center gap-2 flex-wrap">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {bot.name}
+                </h2>
+                {/* Бейдж верификации */}
+                {bot.verified && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm rounded-full font-medium">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Проверенный бот
+                  </span>
+                )}
+              </div>
               <a
                 href={`https://t.me/${bot.username}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-tg-primary hover:text-tg-primary/80 transition-colors font-medium"
+                className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
               >
                 @{bot.username}
               </a>
+              {bot.verified && bot.verifiedDate && (
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                  Проверен с {new Date(bot.verifiedDate).toLocaleDateString('ru-RU')}
+                </p>
+              )}
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600 hover:rotate-90 transition-all duration-300"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:rotate-90 transition-all duration-300 p-2"
+            aria-label="Закрыть"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Вкладки */}
-        <div className="relative flex border-b border-gray-100">
+        <div className="relative flex border-b border-gray-100 dark:border-gray-700">
           <button
             onClick={() => handleTabChange('description')}
-            className={`flex-1 py-4 text-center font-medium transition-all duration-300 tab-button ${activeTab === 'description' ? 'active' : 'text-tg-muted hover:text-tg-text'}`}
+            className={`flex-1 py-4 text-center font-medium transition-all duration-300 ${activeTab === 'description' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             Описание
           </button>
           <button
             onClick={() => handleTabChange('guide')}
-            className={`flex-1 py-4 text-center font-medium transition-all duration-300 tab-button ${activeTab === 'guide' ? 'active' : 'text-tg-muted hover:text-tg-text'}`}
+            className={`flex-1 py-4 text-center font-medium transition-all duration-300 ${activeTab === 'guide' ? 'text-blue-600 dark:text-blue-400 border-b-2 border-blue-600 dark:border-blue-400' : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             Гайд
           </button>
         </div>
 
-        {/* Контент вкладок */}
+        {/* Контент */}
         <div className="relative p-6 overflow-y-auto max-h-[60vh]">
           {activeTab === 'description' ? (
-            <div className={`guide-content transition-opacity duration-300 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
-              <p className="whitespace-pre-line leading-relaxed text-tg-text">{bot.welcomeMessage}</p>
+            <div className={`transition-opacity duration-300 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+              <p className="whitespace-pre-line leading-relaxed text-gray-700 dark:text-gray-300">
+                {bot.welcomeMessage}
+              </p>
             </div>
           ) : (
-            <div className={`guide-content transition-opacity duration-300 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
-              <ReactMarkdown 
-                className="prose prose-sm max-w-none"
-                rehypePlugins={[rehypeRaw]}
-              >
-                {bot.guideMarkdown}
-              </ReactMarkdown>
+            <div className={`transition-opacity duration-300 ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+              <div className="prose prose-sm dark:prose-invert max-w-none text-gray-700 dark:text-gray-300">
+                <ReactMarkdown rehypePlugins={[rehypeRaw]}>
+                  {bot.guideMarkdown}
+                </ReactMarkdown>
+              </div>
             </div>
           )}
         </div>
 
-        {/* Футер модального окна */}
-        <div className="relative p-6 border-t border-gray-100 bg-gradient-to-r from-gray-50 to-gray-100">
+        {/* Футер */}
+        <div className="relative p-6 border-t border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50">
           <a
             href={`https://t.me/${bot.username}`}
             target="_blank"
             rel="noopener noreferrer"
             onClick={playClickSound}
-            className="block w-full bg-gradient-to-r from-tg-primary to-blue-600 text-white py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium text-center"
+            className="block w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium text-center"
           >
             Открыть @{bot.username} в Telegram
           </a>
