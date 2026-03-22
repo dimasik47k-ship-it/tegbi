@@ -34,7 +34,6 @@ export default function UpdatesPage() {
       features: [
         'Автоматическое переключение светлой/тёмной темы',
         'Live Search с подсказками при вводе',
-        'Сохранение предпочтений в localStorage',
         'Плавные анимации переходов'
       ],
       type: 'major',
@@ -54,27 +53,13 @@ export default function UpdatesPage() {
       type: 'major',
     },
     {
-      version: '1.0.5',
-      date: '2026-01-12',
-      title: 'Публичный API для разработчиков',
-      description: 'Документированный API для интеграции каталога в ваши проекты',
-      image: 'api',
-      features: [
-        '4 эндпоинта: bots, search, stats, webhook',
-        'CORS и rate limiting',
-        'Документация с примерами кода',
-        'Поддержка JSON формата'
-      ],
-      type: 'feature',
-    },
-    {
       version: '1.0.0',
       date: '2026-01-01',
       title: 'Официальный запуск Tegbi Catalog',
       description: 'Первая стабильная версия каталога Telegram-ботов',
       image: 'launch',
       features: [
-        'Каталог из 50+ проверенных ботов',
+        'Каталог из 10+ проверенных ботов',
         'Приложение для Windows',
         'Веб-версия для всех устройств',
         'Автообновление контента'
