@@ -3,6 +3,7 @@ import Head from 'next/head';
 import BotCard from '../components/BotCardNew';
 import BotModal from '../components/BotModal';
 import Navbar from '../components/Navbar';
+import BotSearch from '../components/BotSearch';
 import botsDB from '../data/bots';
 
 /**
@@ -11,6 +12,7 @@ import botsDB from '../data/bots';
 export default function Home() {
   const [selectedBot, setSelectedBot] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [displayedBots, setDisplayedBots] = useState(botsDB);
   const audioRef = useRef(null);
 
   // Создаём аудио контекст для звуков (только после первого взаимодействия)
@@ -72,9 +74,14 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Поиск ботов */}
+        <div className={`mb-12 transition-all duration-700 delay-300 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <BotSearch onFilter={(filtered) => setDisplayedBots(filtered)} />
+        </div>
+
         {/* Сетка карточек ботов с анимацией появления */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 pb-8">
-          {botsDB.map((bot, index) => (
+          {displayedBots.map((bot, index) => (
             <div
               key={bot.id}
               className={`transition-all duration-700 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
