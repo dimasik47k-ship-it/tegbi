@@ -260,36 +260,54 @@ export default function AboutPage() {
 
         </main>
 
-        {/* Футер с улучшенным дизайном */}
-<footer className="bg-white/80 backdrop-blur-sm border-t border-gray-100 dark:bg-gray-800/80 dark:border-gray-700 py-8 mt-16">
+        {/* Футер */}
+<footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-100 dark:border-gray-700 py-8 mt-16">
   <div className="container mx-auto px-4 text-center">
     
-    {/* Ссылки на страницы */}
-    <div className="flex justify-center gap-6 mb-4">
+    {/* Ссылки — с переносом на мобильных */}
+    <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-4 text-sm">
       <Link 
         href="/about" 
-        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+        className="text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
       >
         О проекте
       </Link>
-      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
+      <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
+      
       <Link 
         href="/privacy" 
-        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+        className="text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
       >
         Политика конфиденциальности
       </Link>
-      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
+      <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
+      
       <Link 
         href="/terms" 
-        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+        className="text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
       >
         Условия использования
+      </Link>
+      <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
+      
+      <Link 
+        href="/help" 
+        className="text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
+      >
+        Помощь
+      </Link>
+      <span className="text-gray-300 dark:text-gray-600 hidden sm:inline">•</span>
+      
+      <Link 
+        href="/botcreate" 
+        className="text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors whitespace-nowrap"
+      >
+        Предложить бота
       </Link>
     </div>
     
     {/* Копирайт */}
-    <p className="text-tg-muted dark:text-gray-400">
+    <p className="text-tg-muted dark:text-gray-400 text-sm">
       © {new Date().getFullYear()} seraviellex PROJECTS. Все права защищены.
     </p>
     
