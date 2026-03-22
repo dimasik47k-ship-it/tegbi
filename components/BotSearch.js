@@ -5,30 +5,31 @@ export default function BotSearch({ onFilter }) {
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Получаем все уникальные категории (фильтруем пустые значения)
+  // Получаем категории из данных (если есть поле category)
   const categories = useMemo(() => {
     const cats = [...new Set(bots
       .map(bot => bot.category)
       .filter(cat => cat && cat.trim() !== '')
     )];
-    return ['all', ...cats];
+    return cats.length > 0 ? ['all', ...cats] : [];
   }, []);
 
-  // Фильтрация ботов — поиск по ВСЕМ полям
+  // Фильтрация ботов — поиск по ТВОИМ полям
   const filteredBots = useMemo(() => {
     if (query === '') {
-      // Если поиск пустой — возвращаем все боты (с учётом категории)
       return bots.filter(bot => {
-        return selectedCategory === 'all' || bot.category === selectedCategory;
+        if (selectedCategory === 'all') return true;
+        return bot.category === selectedCategory;
       });
     }
 
     const searchQuery = query.toLowerCase();
 
     return bots.filter(bot => {
-      // Проверка категории
-      const matchesCategory = selectedCategory === 'all' || bot.category === selectedCategory;
-      if (!matchesCategory) return false;
+      // Фильтр по категории
+      if (selectedCategory !== 'all' && bot.category !== selectedCategory) {
+        return false;
+      }
 
       // Поиск по name
       if (bot.name && bot.name.toLowerCase().includes(searchQuery)) {
@@ -40,13 +41,17 @@ export default function BotSearch({ onFilter }) {
         return true;
       }
 
-      // Поиск по description (поддерживаем разные названия поля)
-      const description = bot.description || bot.desc || bot.about || bot.info || '';
-      if (description && description.toLowerCase().includes(searchQuery)) {
+      // Поиск по welcomeMessage (у тебя это вместо description!)
+      if (bot.welcomeMessage && bot.welcomeMessage.toLowerCase().includes(searchQuery)) {
         return true;
       }
 
-      // Поиск по category
+      // Поиск по guideMarkdown
+      if (bot.guideMarkdown && bot.guideMarkdown.toLowerCase().includes(searchQuery)) {
+        return true;
+      }
+
+      // Поиск по category (если есть)
       if (bot.category && bot.category.toLowerCase().includes(searchQuery)) {
         return true;
       }
@@ -55,7 +60,7 @@ export default function BotSearch({ onFilter }) {
     });
   }, [query, selectedCategory]);
 
-  // Уведомляем родительский компонент об изменении результатов
+  // Уведомляем родительский компонент
   useEffect(() => {
     if (onFilter) {
       onFilter(filteredBots);
@@ -96,35 +101,37 @@ export default function BotSearch({ onFilter }) {
         </div>
       </div>
 
-      {/* Фильтр по категориям */}
-      <div className="mb-6 flex flex-wrap gap-2">
-        <button
-          onClick={() => setSelectedCategory('all')}
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
-            selectedCategory === 'all'
-              ? 'bg-blue-500 text-white shadow-lg scale-105'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
-          }`}
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          Все
-        </button>
-        {categories.filter(cat => cat !== 'all').map((cat) => (
+      {/* Фильтр по категориям (только если категории есть в данных) */}
+      {categories.length > 0 && (
+        <div className="mb-6 flex flex-wrap gap-2">
           <button
-            key={cat}
-            onClick={() => setSelectedCategory(cat)}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
-              selectedCategory === cat
+            onClick={() => setSelectedCategory('all')}
+            className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${
+              selectedCategory === 'all'
                 ? 'bg-blue-500 text-white shadow-lg scale-105'
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
             }`}
           >
-            {cat}
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            Все
           </button>
-        ))}
-      </div>
+          {categories.filter(cat => cat !== 'all').map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                selectedCategory === cat
+                  ? 'bg-blue-500 text-white shadow-lg scale-105'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-800 dark:text-gray-300'
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Счётчик результатов */}
       <div className="mb-4 text-gray-600 dark:text-gray-400">
