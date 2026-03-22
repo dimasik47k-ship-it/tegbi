@@ -23,6 +23,7 @@ const Navbar = () => {
   { 
     href: '/updates', 
     label: 'Обновления', 
+    color: 'text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -32,6 +33,7 @@ const Navbar = () => {
   { 
     href: '/download', 
     label: 'Скачать', 
+    color: 'text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300',
     icon: (
       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -67,17 +69,17 @@ const Navbar = () => {
             {/* Навигационные ссылки */}
             <div className="flex items-center space-x-1">
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="group flex items-center space-x-1.5 px-3 py-2 rounded-lg text-tg-text hover:text-tg-primary hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
-                >
-                  <span className="transform group-hover:scale-110 transition-transform duration-200">
-                    {link.icon}
-                  </span>
-                  <span className="text-sm font-medium">{link.label}</span>
-                </Link>
-              ))}
+  <Link
+    key={link.href}
+    href={link.href}
+    className={`group flex items-center space-x-1.5 px-3 py-2 rounded-lg font-medium transition-all duration-200 ${link.color} hover:bg-gray-100 dark:hover:bg-gray-700`}
+  >
+    <span className="transform group-hover:scale-110 transition-transform duration-200">
+      {link.icon}
+    </span>
+    <span className="text-sm">{link.label}</span>
+  </Link>
+))}
             </div>
 
             {/* Кнопка поддержки */}
@@ -119,16 +121,16 @@ const Navbar = () => {
             <div className="flex flex-col space-y-1 px-4">
               {/* Навигация */}
               {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="flex items-center space-x-3 py-3 px-2 rounded-lg text-tg-text hover:text-tg-primary hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  {link.icon}
-                  <span className="font-medium">{link.label}</span>
-                </Link>
-              ))}
+  <Link
+    key={link.href}
+    href={link.href}
+    onClick={() => setIsMobileMenuOpen(false)}
+    className={`flex items-center space-x-3 py-3 px-2 rounded-lg font-medium transition-colors ${link.color} hover:bg-gray-50 dark:hover:bg-gray-700`}
+  >
+    {link.icon}
+    <span>{link.label}</span>
+  </Link>
+))}
               
               {/* Поддержка */}
               <a
