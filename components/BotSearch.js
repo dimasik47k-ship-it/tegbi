@@ -5,23 +5,53 @@ export default function BotSearch({ onFilter }) {
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  // Получаем все уникальные категории
+  // Получаем все уникальные категории (фильтруем пустые значения)
   const categories = useMemo(() => {
-    const cats = [...new Set(bots.map(bot => bot.category))];
+    const cats = [...new Set(bots
+      .map(bot => bot.category)
+      .filter(cat => cat && cat.trim() !== '')
+    )];
     return ['all', ...cats];
   }, []);
 
-  // Фильтрация ботов
+  // Фильтрация ботов — поиск по ВСЕМ полям
   const filteredBots = useMemo(() => {
+    if (query === '') {
+      // Если поиск пустой — возвращаем все боты (с учётом категории)
+      return bots.filter(bot => {
+        return selectedCategory === 'all' || bot.category === selectedCategory;
+      });
+    }
+
+    const searchQuery = query.toLowerCase();
+
     return bots.filter(bot => {
-      const matchesSearch = query === '' || 
-        bot.name.toLowerCase().includes(query.toLowerCase()) ||
-        bot.username.toLowerCase().includes(query.toLowerCase()) ||
-        (bot.description && bot.description.toLowerCase().includes(query.toLowerCase()));
-      
+      // Проверка категории
       const matchesCategory = selectedCategory === 'all' || bot.category === selectedCategory;
-      
-      return matchesSearch && matchesCategory;
+      if (!matchesCategory) return false;
+
+      // Поиск по name
+      if (bot.name && bot.name.toLowerCase().includes(searchQuery)) {
+        return true;
+      }
+
+      // Поиск по username
+      if (bot.username && bot.username.toLowerCase().includes(searchQuery)) {
+        return true;
+      }
+
+      // Поиск по description (поддерживаем разные названия поля)
+      const description = bot.description || bot.desc || bot.about || bot.info || '';
+      if (description && description.toLowerCase().includes(searchQuery)) {
+        return true;
+      }
+
+      // Поиск по category
+      if (bot.category && bot.category.toLowerCase().includes(searchQuery)) {
+        return true;
+      }
+
+      return false;
     });
   }, [query, selectedCategory]);
 
