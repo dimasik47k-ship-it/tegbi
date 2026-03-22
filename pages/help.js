@@ -1,8 +1,11 @@
 import Head from 'next/head';
 import Link from 'next/link';
+import { useState } from 'react';
 import Navbar from '../components/Navbar';
 
 export default function HelpPage() {
+  const [searchQuery, setSearchQuery] = useState('');
+
   const faqs = [
     {
       category: 'Общие вопросы',
@@ -121,6 +124,22 @@ export default function HelpPage() {
     },
   ];
 
+  // Фильтрация вопросов по поиску
+  const filteredFAQs = faqs.map(category => ({
+    ...category,
+    questions: category.questions.filter(item => 
+      searchQuery === '' || 
+      item.q.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      item.a.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(category => 
+    searchQuery === '' || category.questions.length > 0
+  );
+
+  // Подсчёт найденных вопросов
+  const totalQuestions = faqs.reduce((acc, cat) => acc + cat.questions.length, 0);
+  const filteredQuestionsCount = filteredFAQs.reduce((acc, cat) => acc + cat.questions.length, 0);
+
   return (
     <>
       <Head>
@@ -149,11 +168,13 @@ export default function HelpPage() {
           </div>
 
           {/* Поиск по вопросам */}
-          <div className="max-w-2xl mx-auto mb-12">
+          <div className="max-w-2xl mx-auto mb-8">
             <div className="relative">
               <input
                 type="text"
                 placeholder="Найти вопрос..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full px-6 py-4 pl-14 text-lg rounded-2xl border-2 border-gray-200 
                            focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                            transition-all duration-200 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
@@ -163,12 +184,52 @@ export default function HelpPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
                       d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </div>
+            
+            {/* Результаты поиска */}
+            {searchQuery && (
+              <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">
+                Найдено: <span className="font-semibold text-blue-600 dark:text-blue-400">{filteredQuestionsCount}</span> из {totalQuestions}
+              </p>
+            )}
           </div>
+
+          {/* Сообщение, если ничего не найдено */}
+          {filteredFAQs.length === 0 && searchQuery && (
+            <div className="max-w-2xl mx-auto text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                Ничего не найдено
+              </h3>
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                Попробуйте изменить поисковый запрос
+              </p>
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              >
+                Сбросить поиск
+              </button>
+            </div>
+          )}
 
           {/* Категории вопросов */}
           <div className="max-w-4xl mx-auto space-y-8">
-            {faqs.map((category, categoryIndex) => (
+            {filteredFAQs.map((category, categoryIndex) => (
               <section key={categoryIndex} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
                 
                 {/* Заголовок категории */}
@@ -179,6 +240,11 @@ export default function HelpPage() {
                   <h2 className="text-xl font-semibold text-white">
                     {category.category}
                   </h2>
+                  {searchQuery && (
+                    <span className="ml-auto px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium">
+                      {category.questions.length}
+                    </span>
+                  )}
                 </div>
 
                 {/* Вопросы */}
