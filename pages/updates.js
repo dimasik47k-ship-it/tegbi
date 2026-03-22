@@ -26,6 +26,23 @@ export default function UpdatesPage() {
   }, []);
 
   const updates = [
+
+    {
+      version: '1.3.0',
+      date: '2026-03-21',
+      title: 'Профессиональный уровень',
+      description: 'Страницы ботов, верификация, справка и форма предложений',
+      image: 'professional',
+      features: [
+        'Страница каждого бота /bots/[id] с деталями и гайдом',
+        'Система верификации: бейдж «Проверено» для надёжных ботов',
+        'Страница помощи /help с умным поиском по вопросам',
+        'Форма «Предложить бота» /botcreate с отправкой в Telegram',
+        'Профессиональная 404 страница с навигацией',
+        'Полная поддержка тёмной темы на всех страницах'
+      ],
+      type: 'major',
+    },
     {
       version: '1.2.0',
       date: '2026-01-20',
@@ -95,70 +112,112 @@ export default function UpdatesPage() {
   };
 
   const getIllustration = (imageType) => {
-    switch (imageType) {
-      case 'theme-search':
-        return (
-          <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
-            <rect x="50" y="40" width="300" height="120" rx="12" fill="#E5E7EB" className="dark:fill-gray-700"/>
-            <rect x="70" y="60" width="120" height="32" rx="8" fill="#3B82F6"/>
-            <rect x="70" y="105" width="260" height="8" rx="4" fill="#9CA3AF" className="dark:fill-gray-500"/>
-            <rect x="70" y="120" width="200" height="8" rx="4" fill="#9CA3AF" className="dark:fill-gray-500"/>
-            <circle cx="320" cy="76" r="12" fill="none" stroke="#6B7280" strokeWidth="3"/>
-            <line x1="328" y1="84" x2="336" y2="92" stroke="#6B7280" strokeWidth="3" strokeLinecap="round"/>
-            <circle cx="360" cy="50" r="20" fill="#10B981" opacity="0.2"/>
-            <circle cx="40" cy="150" r="15" fill="#8B5CF6" opacity="0.2"/>
-          </svg>
-        );
-      case 'mobile':
-        return (
-          <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
-            <rect x="125" y="20" width="150" height="160" rx="16" fill="#E5E7EB" className="dark:fill-gray-700"/>
-            <rect x="135" y="35" width="130" height="130" rx="8" fill="#3B82F6"/>
-            <circle cx="200" cy="155" r="6" fill="#6B7280"/>
-            <rect x="155" y="50" width="90" height="12" rx="4" fill="white" opacity="0.9"/>
-            <rect x="155" y="70" width="70" height="8" rx="3" fill="white" opacity="0.7"/>
-            <rect x="155" y="85" width="80" height="8" rx="3" fill="white" opacity="0.7"/>
-            <circle cx="180" cy="115" r="10" fill="white" opacity="0.9"/>
-            <circle cx="220" cy="115" r="10" fill="white" opacity="0.9"/>
-            <path d="M100 100 L125 80 L125 120 Z" fill="#10B981" opacity="0.3"/>
-            <path d="M300 100 L275 80 L275 120 Z" fill="#8B5CF6" opacity="0.3"/>
-          </svg>
-        );
-      case 'api':
-        return (
-          <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
-            <rect x="40" y="60" width="100" height="80" rx="8" fill="#3B82F6" opacity="0.9"/>
-            <rect x="150" y="60" width="100" height="80" rx="8" fill="#10B981" opacity="0.9"/>
-            <rect x="260" y="60" width="100" height="80" rx="8" fill="#8B5CF6" opacity="0.9"/>
-            <path d="M140 100 L150 100" stroke="#6B7280" strokeWidth="3" strokeDasharray="4 4"/>
-            <path d="M250 100 L260 100" stroke="#6B7280" strokeWidth="3" strokeDasharray="4 4"/>
-            <text x="90" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">GET</text>
-            <text x="200" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">POST</text>
-            <text x="310" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">JSON</text>
-            <circle cx="200" cy="40" r="12" fill="#F59E0B" opacity="0.3"/>
-            <circle cx="50" cy="160" r="10" fill="#EC4899" opacity="0.3"/>
-          </svg>
-        );
-      case 'launch':
-        return (
-          <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
-            <path d="M200 160 L200 40" stroke="#3B82F6" strokeWidth="4" strokeLinecap="round"/>
-            <circle cx="200" cy="40" r="16" fill="#3B82F6"/>
-            <circle cx="200" cy="40" r="8" fill="white"/>
-            <path d="M180 160 L160 180" stroke="#10B981" strokeWidth="3" strokeLinecap="round"/>
-            <path d="M220 160 L240 180" stroke="#10B981" strokeWidth="3" strokeLinecap="round"/>
-            <circle cx="160" cy="180" r="6" fill="#10B981"/>
-            <circle cx="240" cy="180" r="6" fill="#10B981"/>
-            <rect x="80" y="80" width="60" height="40" rx="6" fill="#8B5CF6" opacity="0.8"/>
-            <rect x="260" y="80" width="60" height="40" rx="6" fill="#F59E0B" opacity="0.8"/>
-            <text x="110" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">PC</text>
-            <text x="290" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">WEB</text>
-          </svg>
-        );
-      default:
-        return null;
-    }
-  };
+  switch (imageType) {
+    case 'professional':
+      return (
+        <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
+          {/* Фон карточек */}
+          <rect x="30" y="50" width="110" height="100" rx="10" fill="#3B82F6" opacity="0.9"/>
+          <rect x="145" y="50" width="110" height="100" rx="10" fill="#10B981" opacity="0.9"/>
+          <rect x="260" y="50" width="110" height="100" rx="10" fill="#8B5CF6" opacity="0.9"/>
+          
+          {/* Иконки на карточках */}
+          <circle cx="85" cy="85" r="14" fill="white" opacity="0.95"/>
+          <path d="M80 85 L83 88 L90 80" stroke="#3B82F6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          
+          <circle cx="200" cy="85" r="14" fill="white" opacity="0.95"/>
+          <path d="M193 85 L198 90 L207 78" stroke="#10B981" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          
+          <circle cx="315" cy="85" r="14" fill="white" opacity="0.95"/>
+          <path d="M308 85 L313 90 L322 78" stroke="#8B5CF6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+          
+          {/* Текст на карточках */}
+          <rect x="50" y="110" width="70" height="6" rx="3" fill="white" opacity="0.8"/>
+          <rect x="50" y="122" width="50" height="4" rx="2" fill="white" opacity="0.6"/>
+          
+          <rect x="165" y="110" width="70" height="6" rx="3" fill="white" opacity="0.8"/>
+          <rect x="165" y="122" width="50" height="4" rx="2" fill="white" opacity="0.6"/>
+          
+          <rect x="280" y="110" width="70" height="6" rx="3" fill="white" opacity="0.8"/>
+          <rect x="280" y="122" width="50" height="4" rx="2" fill="white" opacity="0.6"/>
+          
+          {/* Декоративные элементы */}
+          <circle cx="360" cy="30" r="18" fill="#F59E0B" opacity="0.2"/>
+          <circle cx="40" cy="170" r="12" fill="#EC4899" opacity="0.2"/>
+          
+          {/* Бейдж "NEW" */}
+          <rect x="290" y="35" width="50" height="20" rx="10" fill="#F59E0B"/>
+          <text x="315" y="49" textAnchor="middle" fill="white" fontSize="10" fontWeight="bold">NEW</text>
+        </svg>
+      );
+      
+    case 'theme-search':
+      return (
+        <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
+          <rect x="50" y="40" width="300" height="120" rx="12" fill="#E5E7EB" className="dark:fill-gray-700"/>
+          <rect x="70" y="60" width="120" height="32" rx="8" fill="#3B82F6"/>
+          <rect x="70" y="105" width="260" height="8" rx="4" fill="#9CA3AF" className="dark:fill-gray-500"/>
+          <rect x="70" y="120" width="200" height="8" rx="4" fill="#9CA3AF" className="dark:fill-gray-500"/>
+          <circle cx="320" cy="76" r="12" fill="none" stroke="#6B7280" strokeWidth="3"/>
+          <line x1="328" y1="84" x2="336" y2="92" stroke="#6B7280" strokeWidth="3" strokeLinecap="round"/>
+          <circle cx="360" cy="50" r="20" fill="#10B981" opacity="0.2"/>
+          <circle cx="40" cy="150" r="15" fill="#8B5CF6" opacity="0.2"/>
+        </svg>
+      );
+      
+    case 'mobile':
+      return (
+        <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
+          <rect x="125" y="20" width="150" height="160" rx="16" fill="#E5E7EB" className="dark:fill-gray-700"/>
+          <rect x="135" y="35" width="130" height="130" rx="8" fill="#3B82F6"/>
+          <circle cx="200" cy="155" r="6" fill="#6B7280"/>
+          <rect x="155" y="50" width="90" height="12" rx="4" fill="white" opacity="0.9"/>
+          <rect x="155" y="70" width="70" height="8" rx="3" fill="white" opacity="0.7"/>
+          <rect x="155" y="85" width="80" height="8" rx="3" fill="white" opacity="0.7"/>
+          <circle cx="180" cy="115" r="10" fill="white" opacity="0.9"/>
+          <circle cx="220" cy="115" r="10" fill="white" opacity="0.9"/>
+          <path d="M100 100 L125 80 L125 120 Z" fill="#10B981" opacity="0.3"/>
+          <path d="M300 100 L275 80 L275 120 Z" fill="#8B5CF6" opacity="0.3"/>
+        </svg>
+      );
+      
+    case 'api':
+      return (
+        <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
+          <rect x="40" y="60" width="100" height="80" rx="8" fill="#3B82F6" opacity="0.9"/>
+          <rect x="150" y="60" width="100" height="80" rx="8" fill="#10B981" opacity="0.9"/>
+          <rect x="260" y="60" width="100" height="80" rx="8" fill="#8B5CF6" opacity="0.9"/>
+          <path d="M140 100 L150 100" stroke="#6B7280" strokeWidth="3" strokeDasharray="4 4"/>
+          <path d="M250 100 L260 100" stroke="#6B7280" strokeWidth="3" strokeDasharray="4 4"/>
+          <text x="90" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">GET</text>
+          <text x="200" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">POST</text>
+          <text x="310" y="105" textAnchor="middle" fill="white" fontSize="14" fontWeight="bold">JSON</text>
+          <circle cx="200" cy="40" r="12" fill="#F59E0B" opacity="0.3"/>
+          <circle cx="50" cy="160" r="10" fill="#EC4899" opacity="0.3"/>
+        </svg>
+      );
+      
+    case 'launch':
+      return (
+        <svg className="w-full h-48" viewBox="0 0 400 200" fill="none">
+          <path d="M200 160 L200 40" stroke="#3B82F6" strokeWidth="4" strokeLinecap="round"/>
+          <circle cx="200" cy="40" r="16" fill="#3B82F6"/>
+          <circle cx="200" cy="40" r="8" fill="white"/>
+          <path d="M180 160 L160 180" stroke="#10B981" strokeWidth="3" strokeLinecap="round"/>
+          <path d="M220 160 L240 180" stroke="#10B981" strokeWidth="3" strokeLinecap="round"/>
+          <circle cx="160" cy="180" r="6" fill="#10B981"/>
+          <circle cx="240" cy="180" r="6" fill="#10B981"/>
+          <rect x="80" y="80" width="60" height="40" rx="6" fill="#8B5CF6" opacity="0.8"/>
+          <rect x="260" y="80" width="60" height="40" rx="6" fill="#F59E0B" opacity="0.8"/>
+          <text x="110" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">PC</text>
+          <text x="290" y="105" textAnchor="middle" fill="white" fontSize="12" fontWeight="bold">WEB</text>
+        </svg>
+      );
+      
+    default:
+      return null;
+  }
+};
 
   return (
     <>
