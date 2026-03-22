@@ -216,20 +216,52 @@ export default function TermsPage() {
           </article>
         </main>
 
-        {/* Футер сайта */}
-        <footer className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-t border-gray-100 dark:border-gray-700 py-6">
-          <div className="container mx-auto px-4 text-center text-gray-600 dark:text-gray-400 text-sm">
-            <p>© {new Date().getFullYear()} seraviellex PROJECTS. Все права защищены.</p>
-            <div className="flex justify-center gap-6 mt-3">
-              <Link href="/privacy" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Политика конфиденциальности
-              </Link>
-              <Link href="/terms" className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                Условия использования
-              </Link>
-            </div>
-          </div>
-        </footer>
+        {/* Футер с улучшенным дизайном */}
+<footer className="bg-white/80 backdrop-blur-sm border-t border-gray-100 dark:bg-gray-800/80 dark:border-gray-700 py-8 mt-16">
+  <div className="container mx-auto px-4 text-center">
+    
+    {/* Ссылки на страницы */}
+    <div className="flex justify-center gap-6 mb-4">
+      <Link 
+        href="/about" 
+        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+      >
+        О проекте
+      </Link>
+      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
+      <Link 
+        href="/privacy" 
+        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+      >
+        Политика конфиденциальности
+      </Link>
+      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
+      <Link 
+        href="/terms" 
+        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+      >
+        Условия использования
+      </Link>
+    </div>
+    
+    {/* Копирайт */}
+    <p className="text-tg-muted dark:text-gray-400">
+      © {new Date().getFullYear()} seraviellex PROJECTS. Все права защищены.
+    </p>
+    
+    {/* Контакты */}
+    <p className="text-tg-muted dark:text-gray-400 mt-2 text-sm">
+      Связь с разработчиком:{' '}
+      <a 
+        href="https://t.me/seraviellex" 
+        className="text-tg-primary hover:underline dark:text-blue-400"
+      >
+        @seraviellex
+      </a>
+    </p>
+    
+  </div>
+</footer>
       </div>
     </>
   );

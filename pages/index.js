@@ -108,8 +108,15 @@ export default function Home() {
 <footer className="bg-white/80 backdrop-blur-sm border-t border-gray-100 dark:bg-gray-800/80 dark:border-gray-700 py-8 mt-16">
   <div className="container mx-auto px-4 text-center">
     
-    {/* Юридические ссылки */}
+    {/* Ссылки на страницы */}
     <div className="flex justify-center gap-6 mb-4">
+      <Link 
+        href="/about" 
+        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
+      >
+        О проекте
+      </Link>
+      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
       <Link 
         href="/privacy" 
         className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
