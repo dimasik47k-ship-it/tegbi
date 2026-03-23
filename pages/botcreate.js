@@ -12,7 +12,7 @@ export default function BotCreatePage() {
     avatar: '',
     contact: ''
   });
-  const [status, setStatus] = useState('idle'); // idle, loading, success, error
+  const [status, setStatus] = useState('idle');
   const [errorMessage, setErrorMessage] = useState('');
 
   const categories = [
@@ -53,50 +53,32 @@ export default function BotCreatePage() {
       return;
     }
 
-    // Формируем сообщение для Telegram
-    const message = `
-🤖 Новый бот для каталога!
-
-📛 Название: ${formData.name}
-🔗 Username: @${formData.username.replace('@', '')}
-📝 Описание: ${formData.description}
-🏷 Категория: ${formData.category || 'Не указана'}
-🖼 Аватар: ${formData.avatar || 'Не указан'}
-👤 Контакт: ${formData.contact || 'Не указан'}
-
-Отправлено с: tegbi.vercel.app/botcreate
-    `.trim();
-
-    // Отправка в Telegram (через форму)
     try {
-      // Вариант 1: Отправка через Telegram Bot API (нужен токен)
-      // const botToken = 'YOUR_BOT_TOKEN';
-      // const chatId = 'YOUR_CHAT_ID';
-      // await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ chat_id: chatId, text: message })
-      // });
-
-      // Вариант 2: Копирование в буфер + открытие Telegram
-      await navigator.clipboard.writeText(message);
-      
-      setStatus('success');
-      setFormData({
-        name: '',
-        username: '',
-        description: '',
-        category: '',
-        avatar: '',
-        contact: ''
+      const response = await fetch('/api/submit-bot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
-      // Опционально: открыть Telegram для отправки
-      // window.open('https://t.me/seraviellex', '_blank');
-      
+      const data = await response.json();
+
+      if (data.success) {
+        setStatus('success');
+        setFormData({
+          name: '',
+          username: '',
+          description: '',
+          category: '',
+          avatar: '',
+          contact: ''
+        });
+      } else {
+        setStatus('error');
+        setErrorMessage(data.message || 'Ошибка отправки');
+      }
     } catch (error) {
       setStatus('error');
-      setErrorMessage('Ошибка отправки. Попробуйте позже или напишите напрямую @seraviellex');
+      setErrorMessage('Ошибка соединения. Попробуйте позже.');
     }
   };
 
@@ -140,9 +122,9 @@ export default function BotCreatePage() {
                   </h3>
                   <ol className="text-gray-700 dark:text-gray-300 space-y-2 list-decimal list-inside">
                     <li>Заполните форму ниже</li>
+                    <li>Заявка автоматически отправится нам в Telegram</li>
                     <li>Мы проверим бота в течение 1-3 дней</li>
                     <li>Если бот соответствует требованиям — добавим в каталог</li>
-                    <li>Вы получите уведомление в Telegram</li>
                   </ol>
                 </div>
               </div>
@@ -169,6 +151,7 @@ export default function BotCreatePage() {
                              focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                              transition-all duration-200 dark:bg-gray-700 dark:text-white"
                   required
+                  disabled={status === 'loading' || status === 'success'}
                 />
               </div>
 
@@ -190,6 +173,7 @@ export default function BotCreatePage() {
                                focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                                transition-all duration-200 dark:bg-gray-700 dark:text-white"
                     required
+                    disabled={status === 'loading' || status === 'success'}
                   />
                 </div>
               </div>
@@ -210,9 +194,11 @@ export default function BotCreatePage() {
                              focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                              transition-all duration-200 dark:bg-gray-700 dark:text-white resize-none"
                   required
+                  disabled={status === 'loading' || status === 'success'}
+                  maxLength={500}
                 />
-                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                  Максимум 500 символов
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400 text-right">
+                  {formData.description.length}/500
                 </p>
               </div>
 
@@ -229,6 +215,7 @@ export default function BotCreatePage() {
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
                              focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                              transition-all duration-200 dark:bg-gray-700 dark:text-white"
+                  disabled={status === 'loading' || status === 'success'}
                 >
                   <option value="">Выберите категорию</option>
                   {categories.map(cat => (
@@ -252,6 +239,7 @@ export default function BotCreatePage() {
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
                              focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                              transition-all duration-200 dark:bg-gray-700 dark:text-white"
+                  disabled={status === 'loading' || status === 'success'}
                 />
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   Прямая ссылка на изображение (PNG, JPG)
@@ -273,6 +261,7 @@ export default function BotCreatePage() {
                   className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 dark:border-gray-600 
                              focus:border-blue-500 focus:outline-none focus:ring-4 focus:ring-blue-100 
                              transition-all duration-200 dark:bg-gray-700 dark:text-white"
+                  disabled={status === 'loading' || status === 'success'}
                 />
                 <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                   Чтобы мы могли связаться с вами по поводу бота
@@ -282,7 +271,7 @@ export default function BotCreatePage() {
               {/* Кнопка отправки */}
               <button
                 type="submit"
-                disabled={status === 'loading'}
+                disabled={status === 'loading' || status === 'success'}
                 className={`w-full inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-200 ${
                   status === 'loading'
                     ? 'bg-gray-400 cursor-not-allowed'
@@ -337,11 +326,11 @@ export default function BotCreatePage() {
                     </svg>
                     <div>
                       <p className="text-green-700 dark:text-green-300 font-medium mb-1">
-                        Заявка отправлена!
+                        Заявка успешно отправлена!
                       </p>
                       <p className="text-green-600 dark:text-green-400 text-sm">
-                        Данные скопированы в буфер обмена. Отправьте их нам в Telegram:{' '}
-                        <a href="https://t.me/seraviellex" className="underline font-medium">@seraviellex</a>
+                        Мы получили вашу заявку и проверим бота в течение 1-3 дней. 
+                        Если возникнут вопросы — напишем вам в указанные контакты.
                       </p>
                     </div>
                   </div>
