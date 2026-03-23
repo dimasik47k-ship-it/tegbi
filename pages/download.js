@@ -1,5 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
+
 export default function DownloadPage() {
   const platforms = [
     {
@@ -53,9 +54,12 @@ export default function DownloadPage() {
         <meta name="description" content="Загрузите Tegbi Catalog для Windows, Android или используйте веб-версию" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      {/* ✅ ИСПРАВЛЕНО: добавлены dark: классы для фона */}
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
+        {/* ✅ ИСПРАВЛЕНО: добавлены dark: классы */}
+        <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 dark:bg-gray-800/80 dark:border-gray-700 sticky top-0 z-50">
           <div className="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
@@ -64,13 +68,14 @@ export default function DownloadPage() {
                 </svg>
               </div>
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent dark:from-blue-400 dark:to-purple-400">
                   Tegbi Catalog
                 </h1>
-                <p className="text-xs text-gray-500">Выберите платформу</p>
+                {/* ✅ ИСПРАВЛЕНО: текст в тёмной теме */}
+                <p className="text-xs text-gray-500 dark:text-gray-400">Выберите платформу</p>
               </div>
             </div>
-            <a href="/" className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors">
+            <a href="/" className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               На главную
             </a>
           </div>
@@ -81,17 +86,18 @@ export default function DownloadPage() {
           
           {/* Hero */}
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-full text-sm font-medium mb-6">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 rounded-full text-sm font-medium mb-6">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               Бесплатно и без регистрации
             </div>
             
-            <h2 className="text-5xl font-bold text-gray-900 mb-4">
+            {/* ✅ ИСПРАВЛЕНО: заголовки и текст */}
+            <h2 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
               Выберите платформу
             </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               Tegbi Catalog доступен на всех устройствах. Контент обновляется автоматически!
             </p>
           </div>
@@ -101,7 +107,8 @@ export default function DownloadPage() {
             {platforms.map((platform, index) => (
               <div 
                 key={index}
-                className="relative bg-white rounded-2xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all hover:-translate-y-1 group"
+                // ✅ ИСПРАВЛЕНО: карточки с тёмной темой
+                className="relative bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all hover:-translate-y-1 group"
               >
                 {/* Badge */}
                 {platform.badge && (
@@ -116,15 +123,16 @@ export default function DownloadPage() {
                 </div>
 
                 {/* Content */}
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                {/* ✅ ИСПРАВЛЕНО: текст */}
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   {platform.name}
                 </h3>
-                <p className="text-gray-600 mb-4">
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
                   {platform.description}
                 </p>
 
                 {/* Info */}
-                <div className="flex items-center gap-4 text-sm text-gray-500 mb-6">
+                <div className="flex items-center gap-4 text-sm text-gray-500 dark:text-gray-400 mb-6">
                   <span>📦 {platform.size}</span>
                   <span>🏷️ v{platform.version}</span>
                 </div>
@@ -141,143 +149,93 @@ export default function DownloadPage() {
           </div>
 
           {/* Features */}
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 mb-16">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 text-center">
+          {/* ✅ ИСПРАВЛЕНО: блок с фичами */}
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-gray-100 dark:border-gray-700 mb-16">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
               Почему Tegbi Catalog?
             </h3>
             
             <div className="grid md:grid-cols-3 gap-6">
               <div className="text-center">
-                <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 mx-auto mb-3">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center text-green-600 dark:text-green-400 mx-auto mb-3">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Автообновление</h4>
-                <p className="text-sm text-gray-600">Новые боты появляются без переустановки</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Автообновление</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Новые боты появляются без переустановки</p>
               </div>
 
               <div className="text-center">
-                <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mx-auto mb-3">
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 dark:text-blue-400 mx-auto mb-3">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Безопасно</h4>
-                <p className="text-sm text-gray-600">Без рекламы и сбора данных</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Безопасно</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Без рекламы и сбора данных</p>
               </div>
 
               <div className="text-center">
-                <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center text-purple-600 mx-auto mb-3">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400 mx-auto mb-3">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
                   </svg>
                 </div>
-                <h4 className="font-semibold text-gray-900 mb-2">Облачный каталог</h4>
-                <p className="text-sm text-gray-600">Все боты синхронизированы</p>
+                <h4 className="font-semibold text-gray-900 dark:text-white mb-2">Облачный каталог</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400">Все боты синхронизированы</p>
               </div>
             </div>
           </div>
 
           {/* Installation Guide (для Android) */}
-          <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-2xl p-8 border border-blue-100">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-              <svg className="w-6 h-6 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          {/* ✅ ИСПРАВЛЕНО: гайд по установке */}
+          <div className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-800 dark:to-gray-700 rounded-2xl p-8 border border-blue-100 dark:border-gray-600">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+              <svg className="w-6 h-6 text-blue-500 dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Установка Android APK
             </h3>
 
             <div className="grid md:grid-cols-4 gap-4">
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  1
+              {[
+                { num: 1, title: 'Скачайте APK', desc: 'Нажмите кнопку выше' },
+                { num: 2, title: 'Разрешите установку', desc: 'Настройки → Безопасность' },
+                { num: 3, title: 'Установите', desc: 'Откройте файл и нажмите «Установить»' },
+                { num: 4, title: 'Готово!', desc: 'Запустите приложение', isGreen: true },
+              ].map((step) => (
+                <div key={step.num} className="flex gap-3">
+                  <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${step.isGreen ? 'bg-green-500' : 'bg-blue-500'}`}>
+                    {step.num}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900 dark:text-white text-sm mb-1">{step.title}</h4>
+                    <p className="text-gray-600 dark:text-gray-400 text-xs">{step.desc}</p>
+                  </div>
                 </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Скачайте APK</h4>
-                  <p className="text-gray-600 text-xs">Нажмите кнопку выше</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  2
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Разрешите установку</h4>
-                  <p className="text-gray-600 text-xs">Настройки → Безопасность</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  3
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Установите</h4>
-                  <p className="text-gray-600 text-xs">Откройте файл и нажмите «Установить»</p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                  4
-                </div>
-                <div>
-                  <h4 className="font-semibold text-gray-900 text-sm mb-1">Готово!</h4>
-                  <p className="text-gray-600 text-xs">Запустите приложение</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </main>
 
-        {/* Футер с улучшенным дизайном */}
-<footer className="bg-white/80 backdrop-blur-sm border-t border-gray-100 dark:bg-gray-800/80 dark:border-gray-700 py-8 mt-16">
-  <div className="container mx-auto px-4 text-center">
-    
-    {/* Ссылки на страницы */}
-    <div className="flex justify-center gap-6 mb-4">
-      <Link 
-        href="/about" 
-        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
-      >
-        О проекте
-      </Link>
-      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
-      <Link 
-        href="/privacy" 
-        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
-      >
-        Политика конфиденциальности
-      </Link>
-      <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
-      <Link 
-        href="/terms" 
-        className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors"
-      >
-        Условия использования
-      </Link>
-    </div>
-    
-    {/* Копирайт */}
-    <p className="text-tg-muted dark:text-gray-400">
-      © {new Date().getFullYear()} seraviellex PROJECTS. Все права защищены.
-    </p>
-    
-    {/* Контакты */}
-    <p className="text-tg-muted dark:text-gray-400 mt-2 text-sm">
-      Связь с разработчиком:{' '}
-      <a 
-        href="https://t.me/seraviellex" 
-        className="text-tg-primary hover:underline dark:text-blue-400"
-      >
-        @seraviellex
-      </a>
-    </p>
-    
-  </div>
-</footer>
+        {/* Футер (уже был с dark: классами) */}
+        <footer className="bg-white/80 backdrop-blur-sm border-t border-gray-100 dark:bg-gray-800/80 dark:border-gray-700 py-8 mt-16">
+          <div className="container mx-auto px-4 text-center">
+            <div className="flex justify-center gap-6 mb-4">
+              <Link href="/about" className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">О проекте</Link>
+              <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
+              <Link href="/privacy" className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">Политика конфиденциальности</Link>
+              <span className="text-sm text-gray-300 dark:text-gray-600">•</span>
+              <Link href="/terms" className="text-sm text-tg-muted hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 transition-colors">Условия использования</Link>
+            </div>
+            <p className="text-tg-muted dark:text-gray-400">© {new Date().getFullYear()} seraviellex PROJECTS. Все права защищены.</p>
+            <p className="text-tg-muted dark:text-gray-400 mt-2 text-sm">
+              Связь с разработчиком:{' '}
+              <a href="https://t.me/seraviellex" className="text-tg-primary hover:underline dark:text-blue-400">@seraviellex</a>
+            </p>
+          </div>
+        </footer>
       </div>
     </>
   );
