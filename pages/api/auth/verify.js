@@ -1,51 +1,103 @@
-import { jwtVerify, createRemoteJWKSet } from 'jose';
+import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ valid: false, error: 'Method not allowed' });
   }
 
-  // Теперь мы ожидаем id_token, а не hash и сырые данные
-  const { id_token } = req.body;
-
-  if (!id_token) {
-    return res.status(400).json({ valid: false, error: 'Missing id_token' });
-  }
-
-  // Ваш Client ID (цифровой ID бота из BotFather)
-  // Лучше хранить его в .env, например: TELEGRAM_CLIENT_ID=1234567890
-  const clientId = process.env.TELEGRAM_CLIENT_ID; 
-
-  if (!clientId) {
-    console.error('TELEGRAM_CLIENT_ID is not set in environment variables');
-    return res.status(500).json({ valid: false, error: 'Server configuration error' });
-  }
-
   try {
-    // 1. Указываем URL, где лежат публичные ключи Telegram
-    const JWKS = createRemoteJWKSet(new URL('https://oauth.telegram.org/.well-known/jwks.json'));
+    const { id_token } = req.body;
 
-    // 2. Проверяем JWT токен
-    const { payload } = await jwtVerify(id_token, JWKS, {
-      issuer: 'https://oauth.telegram.org', // Обязательная проверка по документации
-      audience: clientId,                   // Токен должен быть выдан именно для вашего Client ID
+    // Проверка наличия токена
+    if (!id_token) {
+      return res.status(400).json({ valid: false, error: 'ID token is required' });
+    }
+
+    // Получаем Client ID из переменных окружения
+    const client_id = process.env.TELEGRAM_CLIENT_ID;
+    
+    if (!client_id) {
+      console.error('TELEGRAM_CLIENT_ID не настроен');
+      return res.status(500).json({ valid: false, error: 'Server configuration error' });
+    }
+
+    // Получаем публичные ключи Telegram JWKS
+    const jwksResponse = await fetch('https://oauth.telegram.org/.well-known/jwks.json');
+    const jwks = await jwksResponse.json();
+
+    // Декодируем токен без проверки (чтобы получить header)
+    const decodedHeader = JSON.parse(Buffer.from(id_token.split('.')[0], 'base64').toString());
+
+    // Находим подходящий ключ из JWKS
+    const keyId = decodedHeader.kid;
+    const key = jwks.keys.find(k => k.kid === keyId);
+
+    if (!key) {
+      return res.status(401).json({ valid: false, error: 'JWK not found' });
+    }
+
+    // Верифицируем подпись токена
+    let publicKey;
+    if (key.use === 'sig' || !key.use) {
+      // RSA или EC ключ
+      const pemFormat = `-----BEGIN PUBLIC KEY-----\n` +
+        `${key.n}\n-----END PUBLIC KEY-----`;
+      
+      try {
+        const cert = crypto.createVerify('RSA-SHA256');
+        cert.update(Buffer.from(id_token.split('.')[0]));
+        cert.end();
+        
+        // Простая проверка подписи (JWT library сделает это правильно)
+        jwt.verify(id_token, {
+          ...key,
+          algorithm: key.alg,
+          issuers: ['https://oauth.telegram.org'],
+          audience: String(client_id),
+          maxAge: '24h'
+        }, (err, decoded) => {
+          if (err) {
+            return res.status(401).json({ valid: false, error: 'Invalid token' });
+          }
+          
+          // Токен валиден - отправляем данные пользователя
+          res.status(200).json({
+            valid: true,
+            user: decoded
+          });
+        });
+        return;
+      } catch (jwtErr) {
+        console.error('JWT verification failed:', jwtErr.message);
+      }
+    }
+
+    // Используем стандартную библиотеку jwt
+    jwt.verify(id_token, {
+      issuer: 'https://oauth.telegram.org',
+      audience: String(client_id),
+      maxAge: '24h'
+    }, { algorithms: ['RS256'] }, (err, decoded) => {
+      if (err) {
+        return res.status(401).json({ valid: false, error: 'Invalid or expired token' });
+      }
+
+      // Преобразуем данные пользователя в удобный формат
+      const userData = {
+        id: decoded.sub,
+        name: decoded.name,
+        username: decoded.preferred_username,
+        photo_url: decoded.picture,
+        phone_number: decoded.phone_number,
+        auth_date: decoded.iat
+      };
+
+      res.status(200).json({ valid: true, user: userData });
     });
 
-    // Если код дошел сюда, значит токен подлинный, не истек, и подписан самим Telegram!
-    // Данные пользователя лежат внутри payload.
-
-    const verifiedUser = {
-      id: payload.id, // Уникальный ID пользователя в Telegram
-      first_name: payload.name, // Имя
-      username: payload.preferred_username, // Юзернейм (без @)
-      photo_url: payload.picture, // Ссылка на аватарку
-      auth_date: payload.iat, // Время авторизации
-    };
-
-    return res.status(200).json({ valid: true, user: verifiedUser });
-
   } catch (error) {
-    console.error('Ошибка проверки JWT токена:', error.message);
-    return res.status(401).json({ valid: false, error: 'Invalid or expired token' });
+    console.error('Token verification error:', error);
+    res.status(500).json({ valid: false, error: 'Server error during verification' });
   }
 }
