@@ -8,7 +8,7 @@ export default function TelegramAuth({ onAuth }) {
     const script = document.createElement('script');
     script.src = 'https://telegram.org/js/telegram-widget.js?22';
     script.async = true;
-    script.setAttribute('data-telegram-login', 'seraviellexI_bot'); // Твой бот
+    script.setAttribute('data-telegram-login', 'Su2yfuicf3p9_bot');
     script.setAttribute('data-size', 'large');
     script.setAttribute('data-radius', '12');
     script.setAttribute('data-onauth', 'onTelegramAuth(user)');
