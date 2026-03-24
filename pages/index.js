@@ -59,10 +59,8 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-tg-bg via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Head>
   {/* Оптимальный title (55 символов) */}
-  <title>Tegbi Catalog — Каталог Telegram-ботов для бизнеса</title>
-  
-  {/* Оптимальный description (145 символов) */}
-  <meta name="description" content="Каталог проверенных бесплатных Telegram-ботов для автоматизации бизнеса. AI-интеграции, модерация, утилиты. Без регистрации." />
+  <title>Tegbi Catalog — Каталог бесплатных Telegram-ботов</title>
+<meta name="description" content="Каталог проверенных бесплатных Telegram-ботов. AI-помощники, модерация, утилиты, развлечения. Без регистрации и рекламы. Просто и удобно." />
   
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="/favicon.ico" />
