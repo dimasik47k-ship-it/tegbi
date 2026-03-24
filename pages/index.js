@@ -58,11 +58,25 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-tg-bg via-blue-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <Head>
-        <title>Catalog of Telegram Bots - seraviellex PROJECTS</title>
-        <meta name="description" content="Каталог Telegram ботов проекта seraviellex PROJECTS" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+  <title>Tegbi Catalog — Каталог проверенных Telegram-ботов для бизнеса</title>
+  <meta name="description" content="Каталог проверенных бесплатных Telegram-ботов для автоматизации бизнеса. AI-интеграции, модерация, утилиты. Без регистрации и рекламы." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" href="/favicon.ico" />
+  
+  {/* Open Graph — твоя картинка! */}
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://tegbi.vercel.app" />
+  <meta property="og:title" content="Tegbi Catalog — Каталог проверенных Telegram-ботов для бизнеса" />
+  <meta property="og:description" content="Каталог проверенных бесплатных Telegram-ботов для автоматизации бизнеса" />
+  <meta property="og:image" content="https://tegbi.vercel.app/og-image.jpg" />
+  <meta property="og:site_name" content="Tegbi Catalog" />
+  
+  {/* Twitter */}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tegbi Catalog — Каталог Telegram-ботов" />
+  <meta name="twitter:description" content="Каталог проверенных бесплатных Telegram-ботов" />
+  <meta name="twitter:image" content="https://tegbi.vercel.app/og-image.jpg" />
+</Head>
 
       {/* Навигационное меню */}
       <Navbar />
