@@ -60,7 +60,7 @@ export default function Home() {
       <Head>
   {/* Оптимальный title (55 символов) */}
   <title>Tegbi Catalog — Каталог бесплатных Telegram-ботов</title>
-<meta name="description" content="Каталог проверенных бесплатных Telegram-ботов. AI-помощники, модерация, утилиты, развлечения. Без регистрации и рекламы. Просто и удобно." />
+<meta name="description" content="Каталог лучших бесплатных Telegram-ботов: AI-помощники, модерация, утилиты и развлечения. Удобный поиск, без регистрации и лишней рекламы." />
   
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="icon" href="/favicon.ico" />
