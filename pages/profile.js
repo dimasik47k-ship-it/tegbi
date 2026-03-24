@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import Link from 'next/link';
+// Убедитесь, что пути к компонентам правильные для вашего проекта
 import Navbar from '../components/Navbar';
 import TelegramAuth from '../components/TelegramAuth';
 
@@ -9,6 +9,7 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // При загрузке страницы проверяем, есть ли сохраненная сессия
     const savedUser = localStorage.getItem('tg_user');
     if (savedUser) {
       setUser(JSON.parse(savedUser));
@@ -16,25 +17,27 @@ export default function ProfilePage() {
     setIsLoading(false);
   }, []);
 
-  const handleAuth = async (userData) => {
+  const handleAuth = async (authData) => {
     try {
+      // Отправляем на сервер ТОЛЬКО id_token для криптографической проверки
       const response = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
+        body: JSON.stringify({ id_token: authData.id_token }),
       });
 
       const data = await response.json();
 
-      if (data.valid) {
-        setUser(userData);
-        localStorage.setItem('tg_user', JSON.stringify(userData));
+      if (response.ok && data.valid) {
+        // Сервер подтвердил токен. Сохраняем ПРОВЕРЕННЫЕ данные пользователя.
+        setUser(data.user);
+        localStorage.setItem('tg_user', JSON.stringify(data.user));
       } else {
-        alert('Ошибка авторизации!');
+        alert(`Ошибка авторизации: ${data.error || 'Неверный токен'}`);
       }
     } catch (error) {
-      console.error('Auth error:', error);
-      alert('Ошибка подключения');
+      console.error('Auth verify error:', error);
+      alert('Ошибка подключения к серверу');
     }
   };
 
@@ -83,23 +86,6 @@ export default function ProfilePage() {
                 </p>
 
                 <TelegramAuth onAuth={handleAuth} />
-
-                <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-                  <div className="flex items-center justify-center gap-6 text-sm text-gray-500 dark:text-gray-400">
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Безопасно</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <svg className="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                      </svg>
-                      <span>Быстро</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
@@ -116,17 +102,16 @@ export default function ProfilePage() {
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                          <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                          </svg>
+                          <span className="text-4xl text-white font-bold">
+                            {user.first_name?.[0]?.toUpperCase()}
+                          </span>
                         </div>
                       )}
                     </div>
-                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-gray-800"></div>
                   </div>
 
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {user.first_name} {user.last_name || ''}
+                    {user.first_name}
                   </h1>
                   {user.username && (
                     <p className="text-blue-600 dark:text-blue-400 mb-6">
@@ -135,14 +120,6 @@ export default function ProfilePage() {
                   )}
 
                   <div className="space-y-4 mb-8">
-                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                      <span>
-                        Авторизован {new Date(user.auth_date * 1000).toLocaleDateString('ru-RU')}
-                      </span>
-                    </div>
                     <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />

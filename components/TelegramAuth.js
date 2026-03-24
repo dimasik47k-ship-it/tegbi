@@ -1,44 +1,49 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 
 export default function TelegramAuth({ onAuth }) {
-  const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
-    // Создаём скрипт Telegram Login Widget
+    // Загружаем новый SDK Telegram для OIDC при монтировании компонента
     const script = document.createElement('script');
-    script.src = 'https://telegram.org/js/telegram-widget.js?22';
+    script.src = 'https://oauth.telegram.org/js/telegram-login.js';
     script.async = true;
-    script.setAttribute('data-telegram-login', 'Su2yfuicf3p9_bot');
-    script.setAttribute('data-size', 'large');
-    script.setAttribute('data-radius', '12');
-    script.setAttribute('data-onauth', 'onTelegramAuth(user)');
-    script.setAttribute('data-request-access', 'write');
-    
-    // Глобальная функция обратного вызова
-    window.onTelegramAuth = (user) => {
-      onAuth(user);
-    };
-
-    document.getElementById('telegram-login-container').appendChild(script);
-    setIsLoading(false);
+    document.body.appendChild(script);
 
     return () => {
-      delete window.onTelegramAuth;
+      document.body.removeChild(script);
     };
-  }, [onAuth]);
+  }, []);
+
+  const handleTelegramLogin = () => {
+    if (window.Telegram && window.Telegram.Login) {
+      window.Telegram.Login.auth(
+        {
+          // Берем Client ID из переменных окружения (должен начинаться с NEXT_PUBLIC_)
+          client_id: process.env.NEXT_PUBLIC_TELEGRAM_CLIENT_ID, 
+          request_access: ['write'], // Опционально: запрос права на отправку сообщений
+        },
+        (data) => {
+          if (data.error) {
+            console.error('Ошибка авторизации Telegram:', data.error);
+          } else {
+            console.log('Успешный ответ от Telegram SDK:', data);
+            // Передаем объект { id_token, user } в родительский компонент
+            onAuth(data);
+          }
+        }
+      );
+    } else {
+      console.error('Telegram SDK еще не загрузился');
+    }
+  };
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {isLoading && (
-        <div className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-          </svg>
-          <span>Загрузка...</span>
-        </div>
-      )}
-      <div id="telegram-login-container"></div>
+      <button 
+        onClick={handleTelegramLogin}
+        className="bg-[#2481cc] text-white px-6 py-3 rounded-xl font-medium hover:bg-[#1d6ba8] transition-colors"
+      >
+        Войти через Telegram
+      </button>
     </div>
   );
 }
