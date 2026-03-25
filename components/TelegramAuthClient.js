@@ -14,7 +14,7 @@ export default function TelegramAuthClient({ onAuth }) {
 
     container.innerHTML = '';
 
-    // Создаём кнопку вручную
+    // Создаём кнопку
     const button = document.createElement('button');
     button.className = 'tg-auth-button bg-[#54a9eb] hover:bg-[#4a9fd8] text-white font-semibold py-3 px-6 rounded-xl transition-colors flex items-center gap-2';
     button.innerHTML = `
@@ -25,19 +25,29 @@ export default function TelegramAuthClient({ onAuth }) {
     `;
     
     button.onclick = () => {
-      const redirectUri = encodeURIComponent(window.location.href);
-      const scope = encodeURIComponent('openid profile');
-      const state = Math.random().toString(36).substring(7);
+      // Текущий URL (без query параметров)
+      const currentUrl = window.location.origin + window.location.pathname;
       
-      const authUrl = `https://oauth.telegram.org/auth?client_id=${clientId}&redirect_uri=${redirectUri}&response_type=code&scope=${scope}&state=${state}`;
+      // Параметры авторизации
+      const params = new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: currentUrl,  // ✅ Важно: точно совпадает с BotFather
+        response_type: 'code',
+        scope: 'openid profile',
+        state: Math.random().toString(36).substring(7),
+      });
       
+      const authUrl = `https://oauth.telegram.org/auth?${params.toString()}`;
+      
+      // Открываем окно авторизации
       const popup = window.open(authUrl, 'TelegramAuth', 'width=600,height=700');
       
+      // Слушаем сообщения от Telegram
       window.addEventListener('message', (event) => {
         if (event.origin !== 'https://oauth.telegram.org') return;
         
-        if (event.data.type === 'authorization_response') {
-          popup.close();
+        if (event.data.type === 'authorization_response' && event.data.payload) {
+          popup?.close();
           onAuth(event.data.payload);
         }
       });
