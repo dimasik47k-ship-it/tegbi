@@ -10,13 +10,23 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Отслеживание скролла
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+useEffect(() => {
+  // Защита от SSR (Next.js)
+  if (typeof window === 'undefined') return;
+
+  const handleScroll = () => {
+    // Простая проверка — не требует preventDefault, поэтому passive: true
+    setIsScrolled(window.scrollY > 20);
+  };
+
+  // Добавляем { passive: true } для лучшей производительности
+  window.addEventListener('scroll', handleScroll, { passive: true });
+  
+  // Cleanup: обязательно удаляем слушатель
+  return () => {
+    window.removeEventListener('scroll', handleScroll);
+  };
+}, []); // Пустой массив зависимостей = запускается один раз при монтировании
 
   // Навигационные ссылки
   const navLinks = [

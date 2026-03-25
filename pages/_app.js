@@ -1,9 +1,11 @@
-import '../styles/globals.css';
+import { useEffect } from 'react';
+import { initTheme } from '../lib/theme';
 
-/**
- * Основной компонент приложения
- */
 function MyApp({ Component, pageProps }) {
+  useEffect(() => {
+    initTheme(); // Применяем тему при загрузке приложения
+  }, []);
+
   return <Component {...pageProps} />;
 }
 
