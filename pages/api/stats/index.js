@@ -1,30 +1,26 @@
 // pages/api/stats/index.js
-// GET /api/stats — статистика каталога
-
-import { bots, getCategories } from '../../../lib/bots';
+import botsDB from '../../../data/bots.js';
 
 export default function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const categories = getCategories();
-  const verifiedCount = bots.filter(b => b.verified).length;
+  const categories = [...new Set(botsDB.map(b => b.category))];
+  const verifiedCount = botsDB.filter(b => b.verified).length;
 
-  // Считаем ботов по категориям
+  // Считаем по категориям
   const byCategory = {};
   categories.forEach(cat => {
-    byCategory[cat] = bots.filter(b => b.category === cat).length;
+    byCategory[cat] = botsDB.filter(b => b.category === cat).length;
   });
 
   return res.status(200).json({
     success: true,
     data: {
-      total_bots: bots.length,
+      total_bots: botsDB.length,
       verified_bots: verifiedCount,
       categories_count: categories.length,
       by_category: byCategory,
-      last_bot_id: bots.length > 0 ? bots[bots.length - 1].id : null,
     },
     meta: {
       timestamp: new Date().toISOString(),

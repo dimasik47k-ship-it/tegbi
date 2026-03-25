@@ -1,19 +1,15 @@
 // pages/api/categories/index.js
-// GET /api/categories — список уникальных категорий
-
-import { getCategories, bots } from '../../../lib/bots';
+import botsDB from '../../../data/bots.js';
 
 export default function handler(req, res) {
-  if (req.method !== 'GET') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
-  const categories = getCategories();
-
-  // Считаем количество ботов в каждой категории
+  const categories = [...new Set(botsDB.map(b => b.category))];
+  
   const withCount = categories.map(cat => ({
     name: cat,
-    count: bots.filter(b => b.category === cat).length,
+    count: botsDB.filter(b => b.category === cat).length,
   }));
 
   return res.status(200).json({
