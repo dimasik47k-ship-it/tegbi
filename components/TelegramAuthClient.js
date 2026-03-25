@@ -25,32 +25,18 @@ export default function TelegramAuthClient({ onAuth }) {
     `;
     
     button.onclick = () => {
-      // Текущий URL (без query параметров)
       const currentUrl = window.location.origin + window.location.pathname;
       
-      // Параметры авторизации
       const params = new URLSearchParams({
         client_id: clientId,
-        redirect_uri: currentUrl,  // ✅ Важно: точно совпадает с BotFather
+        redirect_uri: currentUrl,
         response_type: 'code',
         scope: 'openid profile',
         state: Math.random().toString(36).substring(7),
       });
       
       const authUrl = `https://oauth.telegram.org/auth?${params.toString()}`;
-      
-      // Открываем окно авторизации
-      const popup = window.open(authUrl, 'TelegramAuth', 'width=600,height=700');
-      
-      // Слушаем сообщения от Telegram
-      window.addEventListener('message', (event) => {
-        if (event.origin !== 'https://oauth.telegram.org') return;
-        
-        if (event.data.type === 'authorization_response' && event.data.payload) {
-          popup?.close();
-          onAuth(event.data.payload);
-        }
-      });
+      window.location.href = authUrl; // 🔥 Перенаправляем на Telegram (вместо popup)
     };
 
     container.appendChild(button);

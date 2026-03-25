@@ -1,71 +1,99 @@
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import TelegramAuth from '../components/TelegramAuth';
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    // Проверяем сохранённого пользователя (только в браузере)
-    if (typeof window !== 'undefined') {
-      const savedUser = localStorage.getItem('tg_user');
-      if (savedUser) {
+    // Проверяем есть ли код авторизации в URL (после возврата из Telegram)
+    const checkAuthCode = async () => {
+      if (typeof window === 'undefined') return;
+      
+      const urlParams = new URLSearchParams(window.location.search);
+      const code = urlParams.get('code');
+      const state = urlParams.get('state');
+      
+      if (code) {
+        setIsProcessing(true);
         try {
-          setUser(JSON.parse(savedUser));
+          // Обмениваем код на токен через API
+          const response = await fetch('/api/auth/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              code,
+              redirect_uri: window.location.origin + '/profile',
+              state 
+            }),
+          });
+
+          const data = await response.json();
+          
+          if (data.valid && data.user) {
+            // Сохраняем пользователя
+            setUser(data.user);
+            localStorage.setItem('tg_user', JSON.stringify(data.user));
+            
+            // Очищаем URL от параметров авторизации
+            window.history.replaceState({}, document.title, '/profile');
+          } else {
+            console.error('Auth failed:', data.error);
+            alert('Ошибка входа: ' + (data.error || 'Неизвестная ошибка'));
+          }
         } catch (error) {
-          console.error('Ошибка парсинга данных:', error);
-          localStorage.removeItem('tg_user');
+          console.error('Auth error:', error);
+          alert('Ошибка подключения к серверу');
+        } finally {
+          setIsProcessing(false);
+        }
+      } else {
+        // Проверяем сохранённого пользователя в localStorage
+        const savedUser = localStorage.getItem('tg_user');
+        if (savedUser) {
+          try {
+            setUser(JSON.parse(savedUser));
+          } catch (error) {
+            console.error('Ошибка парсинга данных:', error);
+            localStorage.removeItem('tg_user');
+          }
         }
       }
-    }
-    setIsLoading(false);
+      setIsLoading(false);
+    };
+
+    checkAuthCode();
   }, []);
 
-  // Обработчик успешного входа
+  // Обработчик успешного входа (через postMessage)
   const handleAuth = async (authData) => {
+    setIsProcessing(true);
     try {
-      // Для OpenID получаем код из URL или данных
-      if (authData.code) {
-        // Обмениваем код на токен
-        const response = await fetch('/api/auth/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            code: authData.code,
-            redirect_uri: window.location.href 
-          }),
-        });
+      const response = await fetch('/api/auth/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(authData),
+      });
 
-        const data = await response.json();
-        
-        if (data.valid) {
-          setUser(data.user);
-          localStorage.setItem('tg_user', JSON.stringify(data.user));
-        } else {
-          alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
-        }
-      } else if (authData.id_token) {
-        // Если уже есть токен
-        const response = await fetch('/api/auth/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id_token: authData.id_token }),
-        });
-
-        const data = await response.json();
-        
-        if (data.valid) {
-          setUser(data.user);
-          localStorage.setItem('tg_user', JSON.stringify(data.user));
-        } else {
-          alert('Ошибка авторизации');
-        }
+      const data = await response.json();
+      
+      if (data.valid && data.user) {
+        setUser(data.user);
+        localStorage.setItem('tg_user', JSON.stringify(data.user));
+        alert('✅ Успешный вход!');
+      } else {
+        alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
       }
     } catch (error) {
       console.error('Auth error:', error);
       alert('Ошибка подключения к серверу');
+    } finally {
+      setIsProcessing(false);
     }
   };
 
@@ -78,13 +106,18 @@ export default function ProfilePage() {
   };
 
   // Экран загрузки
-  if (isLoading) {
+  if (isLoading || isProcessing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-        <svg className="animate-spin h-10 w-10 text-blue-600" viewBox="0 0 24 24">
-          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
-          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-        </svg>
+        <div className="text-center">
+          <svg className="animate-spin h-10 w-10 text-blue-600 mx-auto mb-4" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+          </svg>
+          <p className="text-gray-600 dark:text-gray-400">
+            {isProcessing ? 'Выполняется вход...' : 'Загрузка...'}
+          </p>
+        </div>
       </div>
     );
   }
@@ -139,7 +172,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             ) : (
-              // Профиль пользователя
+              /* Профиль пользователя */
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                 {/* Шапка профиля */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-32"></div>
@@ -163,7 +196,11 @@ export default function ProfilePage() {
                         </div>
                       )}
                     </div>
-                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-gray-800"></div>
+                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-gray-800">
+                      <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                      </svg>
+                    </div>
                   </div>
 
                   {/* Информация */}
