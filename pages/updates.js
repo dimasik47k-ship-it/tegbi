@@ -315,33 +315,58 @@ export default function UpdatesPage() {
     },
     // Запланированные обновления
     {
-      version: '1.5.0',
-      date: 'Скоро',
-      title: 'API для разработчиков',
-      description: 'Публичное API для интеграции с Tegbi Catalog',
-      image: 'professional',
-      features: [
-        { text: 'REST API с документацией', badge: 'soon' },
-        { text: 'Webhooks для уведомлений', badge: 'soon' },
-        { text: 'SDK для популярных языков', badge: 'soon' },
-      ],
-      type: 'soon',
-      gradient: false,
+  version: '1.5.0',
+  date: '2026-03-25',  // ✅ Уже сегодня, а не "Скоро"
+  title: 'Public API для разработчиков [BETA]',  // ✅ Добавили [BETA]
+  description: 'Программный доступ к каталогу ботов: получайте данные, интегрируйте, автоматизируйте',
+  image: 'professional',
+  features: [
+    { 
+      text: 'REST API с открытой документацией', 
+      badge: 'beta',  // ✅ beta вместо soon
+      details: 'GET /api/bots, /api/bots/[id], /api/stats'
     },
-    {
-      version: '2.0.0',
-      date: 'В разработке',
-      title: 'Полный редизайн',
-      description: 'Новая архитектура, улучшенная производительность и новые возможности',
-      image: 'launch',
-      features: [
-        { text: 'Микросервисная архитектура', badge: 'in-dev' },
-        { text: 'Улучшенный поиск с фильтрами', badge: 'in-dev' },
-        { text: 'Система отзывов и рейтингов', badge: 'in-dev' },
-      ],
-      type: 'in-dev',
-      gradient: true,
+    { 
+      text: 'JSON-ответы с пагинацией и фильтрами', 
+      badge: 'feature',
+      details: '?q=поиск&category=games&limit=20'
     },
+    { 
+      text: 'CORS поддержка для веб-приложений', 
+      badge: 'feature',
+      details: 'Access-Control-Allow-Origin: *'
+    },
+    { 
+      text: 'Rate limiting: 100 запросов/мин', 
+      badge: 'feature',
+      details: 'Защита от злоупотреблений'
+    },
+    { 
+      text: 'Примеры кода: JS, Python, cURL', 
+      badge: 'feature',
+      details: 'Готовые сниппеты в документации'
+    },
+    { 
+      text: 'Страница документации: /api-doc', 
+      badge: 'beta',
+      details: 'Интерактивная справка с примерами'
+    },
+  ],
+  type: 'beta',  // ✅ beta вместо soon
+  gradient: true,  // ✅ Градиент для бета-бейджа
+  warning: 'API в бета-тесте. Возможны изменения в структуре ответов.',  // ✅ Предупреждение
+  apiPreview: {
+    endpoint: 'GET /api/bots',
+    example: 'https://tegbi.vercel.app/api/bots?category=Распознавание речи&limit=5',
+    response: {
+      success: true,
+      data: {
+        bots: [{ id: 5, name: 'SaluteSpeech Bot', username: 'smartspeech_sber_bot' }],
+        pagination: { current_page: 1, total: 10 }
+      }
+    }
+  }
+},
   ];
 
   return (
