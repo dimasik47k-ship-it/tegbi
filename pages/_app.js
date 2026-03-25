@@ -1,9 +1,10 @@
 import { useEffect } from 'react';
 import { initTheme } from '../lib/theme';
+import '../styles/globals.css'; // 🔥 ДОБАВЬ ЭТУ СТРОКУ!
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    initTheme(); // Применяем тему при загрузке приложения
+    initTheme();
   }, []);
 
   return <Component {...pageProps} />;
