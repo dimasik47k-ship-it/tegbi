@@ -15,14 +15,18 @@ body {
   font-family: 'Inter', system-ui, sans-serif;
 }
 
-/* Улучшенные стили для модального окна */
+/* ========================================
+   МОДАЛЬНЫЕ ОКНА
+   ======================================== */
 .modal-overlay {
   background-color: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
-/* Улучшенные стили для вкладок */
+/* ========================================
+   ВКЛАДКИ
+   ======================================== */
 .tab-button {
   transition: all 0.3s ease;
   position: relative;
@@ -48,7 +52,9 @@ body {
   color: var(--tg-primary);
 }
 
-/* Улучшенные анимации */
+/* ========================================
+   АНИМАЦИИ
+   ======================================== */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -100,6 +106,41 @@ body {
   }
 }
 
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(36, 129, 204, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(36, 129, 204, 0);
+  }
+}
+
+/* Классы анимаций */
 .fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -120,7 +161,13 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Улучшенные стили для HTML контента в гайде */
+.pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+/* ========================================
+   КОНТЕНТ (ГАЙДЫ)
+   ======================================== */
 .guide-content {
   line-height: 1.6;
 }
@@ -197,7 +244,9 @@ body {
   border-radius: 0 0.5rem 0.5rem 0;
 }
 
-/* Эффекты при наведении */
+/* ========================================
+   ЭФФЕКТЫ И КНОПКИ
+   ======================================== */
 .hover-lift {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
@@ -207,7 +256,6 @@ body {
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Градиентные кнопки */
 .gradient-button {
   background: linear-gradient(135deg, var(--tg-primary), #8b5cf6);
   transition: all 0.3s ease;
@@ -218,12 +266,13 @@ body {
   box-shadow: 0 5px 15px rgba(36, 129, 204, 0.3);
 }
 
-/* Плавный скролл */
+/* ========================================
+   СКРОЛЛБАР
+   ======================================== */
 html {
   scroll-behavior: smooth;
 }
 
-/* Улучшенный скроллбар */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -243,21 +292,9 @@ html {
   background: linear-gradient(135deg, #1a6bb5, #7c4db8);
 }
 
-
 /* ========================================
    TOAST УВЕДОМЛЕНИЯ
    ======================================== */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out forwards;
 }
@@ -316,7 +353,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* ========================================
-   QR CODE КАСТОМИЗАЦИЯ
+   QR CODE
    ======================================== */
 .qr-container {
   position: relative;
@@ -428,11 +465,6 @@ input:checked + .toggle-slider:before {
   animation: gradientShift 3s ease infinite;
 }
 
-@keyframes gradientShift {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
 .gradient-btn:hover {
   transform: scale(1.05);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
@@ -461,15 +493,6 @@ input:checked + .toggle-slider:before {
   animation: modalFadeIn 0.3s ease-out;
 }
 
-@keyframes modalFadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .share-modal-content {
   background: white;
   border-radius: 24px;
@@ -479,17 +502,6 @@ input:checked + .toggle-slider:before {
   overflow-y: auto;
   box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
   animation: modalSlideUp 0.4s ease-out;
-}
-
-@keyframes modalSlideUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
 }
 
 .share-modal-close {
@@ -537,7 +549,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* ========================================
-   ПРЕДПРОСМОТР ПРОФИЛЯ (в настройках)
+   ПРЕДПРОСМОТР ПРОФИЛЯ
    ======================================== */
 .profile-preview {
   position: sticky;
@@ -625,7 +637,7 @@ input:checked + .toggle-slider:before {
 }
 
 /* ========================================
-   ДОПОЛНИТЕЛЬНЫЕ УТИЛИТЫ
+   УТИЛИТЫ
    ======================================== */
 .text-gradient {
   background: linear-gradient(135deg, var(--tg-primary), #8b5cf6);
@@ -651,7 +663,6 @@ input:checked + .toggle-slider:before {
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* Плавный переход для всех интерактивных элементов */
 button, 
 input, 
 select, 
@@ -660,7 +671,6 @@ a,
   transition: all 0.2s ease;
 }
 
-/* Убираем стандартный аутлайн, добавляем свой */
 button:focus, 
 input:focus, 
 select:focus {
@@ -668,21 +678,6 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(36, 129, 204, 0.3);
 }
 
-/* Анимация пульсации для важных элементов */
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(36, 129, 204, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 0 12px rgba(36, 129, 204, 0);
-  }
-}
-
-.pulse-glow {
-  animation: pulse-glow 2s infinite;
-}
-
-/* Скрытие скроллбара но с возможностью скролла */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
