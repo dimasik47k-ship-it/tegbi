@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import jwt from 'jsonwebtoken';
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -6,88 +6,94 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { hash, auth_date, ...userData } = req.body;
+    const { id_token, code, redirect_uri } = req.body;
 
-    // Проверка обязательных полей
-    if (!hash || !auth_date) {
-      return res.status(400).json({ 
-        valid: false, 
-        error: 'Отсутствуют обязательные поля (hash, auth_date)' 
-      });
-    }
-
-    // Получаем токен бота из переменных окружения
-    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    // Получаем Client ID и Secret
+    const client_id = process.env.TELEGRAM_CLIENT_ID;
+    const client_secret = process.env.TELEGRAM_CLIENT_SECRET;
     
-    if (!botToken) {
-      console.error('TELEGRAM_BOT_TOKEN не настроен');
-      return res.status(500).json({ 
-        valid: false, 
-        error: 'Ошибка конфигурации сервера' 
-      });
+    if (!client_id) {
+      console.error('TELEGRAM_CLIENT_ID не настроен');
+      return res.status(500).json({ valid: false, error: 'Server configuration error' });
     }
 
-    // Проверяем что данные свежие (не старше 24 часов)
-    const authTime = new Date(auth_date * 1000);
-    const now = new Date();
-    const hoursDiff = (now - authTime) / (1000 * 60 * 60);
+    let token = id_token;
 
-    if (hoursDiff > 24) {
-      return res.status(401).json({ 
-        valid: false, 
-        error: 'Данные устарели (прошло более 24 часов)' 
+    // Если есть код, обмениваем его на токен
+    if (code && !id_token) {
+      if (!client_secret) {
+        return res.status(500).json({ valid: false, error: 'Client secret not configured' });
+      }
+
+      const tokenResponse = await fetch('https://oauth.telegram.org/token', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          grant_type: 'authorization_code',
+          code: code,
+          redirect_uri: redirect_uri || process.env.NEXT_PUBLIC_SITE_URL || 'https://tegbi.vercel.app',
+          client_id: client_id,
+          client_secret: client_secret,
+        }),
       });
+
+      const tokenData = await tokenResponse.json();
+      
+      if (!tokenData.id_token) {
+        console.error('Token exchange failed:', tokenData);
+        return res.status(401).json({ valid: false, error: 'Failed to exchange code for token' });
+      }
+      
+      token = tokenData.id_token;
     }
 
-    // Вычисляем секретный ключ: SHA256(bot_token)
-    const secretKey = crypto
-      .createHash('sha256')
-      .update(botToken)
-      .digest();
-
-    // Формируем строку для проверки (ключи сортируются)
-    const dataCheckString = Object.keys(userData)
-      .sort()
-      .map(key => `${key}=${userData[key]}`)
-      .join('\n');
-
-    // Вычисляем хеш
-    const computedHash = crypto
-      .createHmac('sha256', secretKey)
-      .update(dataCheckString)
-      .digest('hex');
-
-    // Сравниваем хеши
-    if (computedHash !== hash) {
-      console.error('❌ Hash не совпадает');
-      console.error('Ожидался:', hash);
-      console.error('Получен:', computedHash);
-      return res.status(401).json({ 
-        valid: false, 
-        error: 'Неверная подпись данных' 
-      });
+    if (!token) {
+      return res.status(400).json({ valid: false, error: 'No token provided' });
     }
 
-    // Всё ок - возвращаем данные пользователя
-    const userProfile = {
-      id: userData.id,
-      first_name: userData.first_name,
-      last_name: userData.last_name || '',
-      username: userData.username || '',
-      photo_url: userData.photo_url || '',
-      auth_date: userData.auth_date
-    };
+    // Получаем публичные ключи Telegram
+    const jwksResponse = await fetch('https://oauth.telegram.org/.well-known/jwks.json');
+    const jwks = await jwksResponse.json();
 
-    res.status(200).json({ 
-      valid: true, 
-      user: userProfile 
+    // Находим подходящий ключ
+    const decodedHeader = JSON.parse(Buffer.from(token.split('.')[0], 'base64').toString());
+    const key = jwks.keys.find(k => k.kid === decodedHeader.kid);
+
+    if (!key) {
+      return res.status(401).json({ valid: false, error: 'Key not found' });
+    }
+
+    // Верифицируем токен
+    jwt.verify(token, {
+      issuer: 'https://oauth.telegram.org',
+      audience: String(client_id),
+      algorithms: ['RS256']
+    }, (err, decoded) => {
+      if (err) {
+        console.error('JWT verification failed:', err.message);
+        return res.status(401).json({ valid: false, error: 'Invalid or expired token' });
+      }
+
+      // Преобразуем данные в удобный формат
+      const userData = {
+        id: decoded.sub,
+        name: decoded.name,
+        first_name: decoded.name?.split(' ')[0],
+        last_name: decoded.name?.split(' ')[1] || '',
+        username: decoded.preferred_username,
+        photo_url: decoded.picture,
+        phone_number: decoded.phone_number,
+        auth_date: decoded.iat,
+        sub: decoded.sub
+      };
+
+      res.status(200).json({ valid: true, user: userData });
     });
 
   } catch (error) {
     console.error('Token verification error:', error);
-    res.status(500).json({ 
-      valid: false, 
-      error: 'Ошибка сервера при проверке' 
-    });
+    res.status(500).json({ valid: false, error: 'Server error during verification' });
   }
 }

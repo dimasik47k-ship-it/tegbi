@@ -24,21 +24,44 @@ export default function ProfilePage() {
   }, []);
 
   // Обработчик успешного входа
-  const handleAuth = async (userData) => {
+  const handleAuth = async (authData) => {
     try {
-      const response = await fetch('/api/auth/verify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(userData),
-      });
+      // Для OpenID получаем код из URL или данных
+      if (authData.code) {
+        // Обмениваем код на токен
+        const response = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            code: authData.code,
+            redirect_uri: window.location.href 
+          }),
+        });
 
-      const data = await response.json();
-      
-      if (data.valid) {
-        setUser(data.user);
-        localStorage.setItem('tg_user', JSON.stringify(data.user));
-      } else {
-        alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
+        const data = await response.json();
+        
+        if (data.valid) {
+          setUser(data.user);
+          localStorage.setItem('tg_user', JSON.stringify(data.user));
+        } else {
+          alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
+        }
+      } else if (authData.id_token) {
+        // Если уже есть токен
+        const response = await fetch('/api/auth/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_token: authData.id_token }),
+        });
+
+        const data = await response.json();
+        
+        if (data.valid) {
+          setUser(data.user);
+          localStorage.setItem('tg_user', JSON.stringify(data.user));
+        } else {
+          alert('Ошибка авторизации');
+        }
       }
     } catch (error) {
       console.error('Auth error:', error);
@@ -79,8 +102,8 @@ export default function ProfilePage() {
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="max-w-2xl mx-auto">
             
+            {/* Форма входа */}
             {!user ? (
-              /* Форма входа */
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 text-center">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -116,6 +139,7 @@ export default function ProfilePage() {
                 </div>
               </div>
             ) : (
+              // Профиль пользователя
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
                 {/* Шапка профиля */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-32"></div>
@@ -124,10 +148,10 @@ export default function ProfilePage() {
                   {/* Аватарка */}
                   <div className="relative -mt-16 mb-6">
                     <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg bg-white">
-                      {user.photo_url ? (
+                      {user.photo_url || user.picture ? (
                         <img 
-                          src={user.photo_url} 
-                          alt={user.first_name || 'User'}
+                          src={user.photo_url || user.picture} 
+                          alt={user.name || user.first_name || 'User'}
                           className="w-full h-full object-cover"
                           onError={(e) => e.target.style.display = 'none'}
                         />
@@ -144,13 +168,13 @@ export default function ProfilePage() {
 
                   {/* Информация */}
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {user.first_name} {user.last_name || ''}
+                    {user.name || user.first_name || 'Пользователь'}
                   </h1>
-                  {user.username && (
+                  {user.username || user.preferred_username ? (
                     <p className="text-blue-600 dark:text-blue-400 mb-6">
-                      @{user.username.replace('@', '')}
+                      @{(user.username || user.preferred_username || '').replace('@', '')}
                     </p>
-                  )}
+                  ) : null}
 
                   {/* Детали */}
                   <div className="space-y-3 mb-8 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
@@ -158,16 +182,18 @@ export default function ProfilePage() {
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span>ID: {user.id}</span>
+                      <span>ID: {user.sub || user.id}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>
-                        Вход: {new Date(user.auth_date * 1000).toLocaleDateString('ru-RU')}
-                      </span>
-                    </div>
+                    {(user.iat || user.auth_date) && (
+                      <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
+                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>
+                          Вход: {new Date((user.iat || user.auth_date) * 1000).toLocaleDateString('ru-RU')}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Кнопка выхода */}
