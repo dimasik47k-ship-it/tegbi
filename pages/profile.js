@@ -1,4 +1,3 @@
-// pages/profile.js
 import { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
@@ -9,14 +8,14 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Проверка данных пользователя только в браузере
+    // Проверяем сохранённого пользователя (только в браузере)
     if (typeof window !== 'undefined') {
       const savedUser = localStorage.getItem('tg_user');
       if (savedUser) {
         try {
           setUser(JSON.parse(savedUser));
         } catch (error) {
-          console.error('Error parsing user ', error);
+          console.error('Ошибка парсинга данных:', error);
           localStorage.removeItem('tg_user');
         }
       }
@@ -24,12 +23,13 @@ export default function ProfilePage() {
     setIsLoading(false);
   }, []);
 
+  // Обработчик успешного входа
   const handleAuth = async (userData) => {
     try {
       const response = await fetch('/api/auth/verify', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id_token: userData.id_token }),
+        body: JSON.stringify(userData),
       });
 
       const data = await response.json();
@@ -38,14 +38,15 @@ export default function ProfilePage() {
         setUser(data.user);
         localStorage.setItem('tg_user', JSON.stringify(data.user));
       } else {
-        alert('Ошибка авторизации');
+        alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
       }
     } catch (error) {
       console.error('Auth error:', error);
-      alert('Ошибка подключения');
+      alert('Ошибка подключения к серверу');
     }
   };
 
+  // Выход из аккаунта
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tg_user');
@@ -53,6 +54,7 @@ export default function ProfilePage() {
     setUser(null);
   };
 
+  // Экран загрузки
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -78,6 +80,7 @@ export default function ProfilePage() {
           <div className="max-w-2xl mx-auto">
             
             {!user ? (
+              /* Форма входа */
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 text-center">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
                   <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -92,6 +95,7 @@ export default function ProfilePage() {
                   Войдите через Telegram для доступа к личному кабинету
                 </p>
 
+                {/* Компонент аутентификации */}
                 <TelegramAuth onAuth={handleAuth} />
 
                 <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -113,13 +117,20 @@ export default function ProfilePage() {
               </div>
             ) : (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                {/* Шапка профиля */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-32"></div>
                 
                 <div className="px-8 pb-8">
+                  {/* Аватарка */}
                   <div className="relative -mt-16 mb-6">
                     <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg bg-white">
                       {user.photo_url ? (
-                        <img src={user.photo_url} alt={user.name || 'User'} className="w-full h-full object-cover" onError={(e) => e.target.style.display = 'none'} />
+                        <img 
+                          src={user.photo_url} 
+                          alt={user.first_name || 'User'}
+                          className="w-full h-full object-cover"
+                          onError={(e) => e.target.style.display = 'none'}
+                        />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                           <svg className="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 24 24">
@@ -128,44 +139,42 @@ export default function ProfilePage() {
                         </div>
                       )}
                     </div>
-                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-gray-800">
-                      <svg className="w-4 h-4 text-white absolute top-1 left-1" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-                      </svg>
-                    </div>
+                    <div className="absolute bottom-2 right-2 w-6 h-6 bg-green-500 rounded-full border-4 border-white dark:border-gray-800"></div>
                   </div>
 
+                  {/* Информация */}
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                    {user.name || 'Пользователь'}
+                    {user.first_name} {user.last_name || ''}
                   </h1>
                   {user.username && (
-                    <p className="text-blue-600 dark:text-blue-400 mb-6">@{user.username.replace(/^@/, '')}</p>
+                    <p className="text-blue-600 dark:text-blue-400 mb-6">
+                      @{user.username.replace('@', '')}
+                    </p>
                   )}
 
+                  {/* Детали */}
                   <div className="space-y-3 mb-8 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                       </svg>
-                      <span>ID: {user.sub || user.id}</span>
+                      <span>ID: {user.id}</span>
                     </div>
                     <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>Вход: {new Date((user.iat || user.auth_date) * 1000).toLocaleDateString('ru-RU')}</span>
+                      <span>
+                        Вход: {new Date(user.auth_date * 1000).toLocaleDateString('ru-RU')}
+                      </span>
                     </div>
-                    {user.phone_number && (
-                      <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
-                        <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                        </svg>
-                        <span>{user.phone_number}</span>
-                      </div>
-                    )}
                   </div>
 
-                  <button onClick={handleLogout} className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2">
+                  {/* Кнопка выхода */}
+                  <button 
+                    onClick={handleLogout}
+                    className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
+                  >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                     </svg>
