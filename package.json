@@ -12,6 +12,7 @@
     "@tailwindcss/typography": "^0.5.19",
     "jose": "^6.2.2",
     "jsonwebtoken": "^9.0.3",
+    "jwk-to-pem": "^2.0.7",
     "next": "14.0.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",

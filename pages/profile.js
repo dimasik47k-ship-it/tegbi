@@ -4,14 +4,41 @@ import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import TelegramAuth from '../components/TelegramAuth';
 
+// Компонент Toast уведомления
+function Toast({ message, type, onClose }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  const bgColor = type === 'error' ? 'bg-red-500' : 'bg-green-500';
+
+  return (
+    <div className={`fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-xl shadow-2xl z-50 animate-fade-in`}>
+      <div className="flex items-center gap-3">
+        <span>{message}</span>
+        <button onClick={onClose} className="hover:opacity-80">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [toast, setToast] = useState(null);
+
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+  };
 
   useEffect(() => {
-    // Проверяем есть ли код авторизации в URL (после возврата из Telegram)
     const checkAuthCode = async () => {
       if (typeof window === 'undefined') return;
       
@@ -22,7 +49,6 @@ export default function ProfilePage() {
       if (code) {
         setIsProcessing(true);
         try {
-          // Обмениваем код на токен через API
           const response = await fetch('/api/auth/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -36,24 +62,21 @@ export default function ProfilePage() {
           const data = await response.json();
           
           if (data.valid && data.user) {
-            // Сохраняем пользователя
             setUser(data.user);
             localStorage.setItem('tg_user', JSON.stringify(data.user));
-            
-            // Очищаем URL от параметров авторизации
+            showToast('✅ Успешный вход!', 'success');
             window.history.replaceState({}, document.title, '/profile');
           } else {
             console.error('Auth failed:', data.error);
-            alert('Ошибка входа: ' + (data.error || 'Неизвестная ошибка'));
+            showToast('Ошибка входа: ' + (data.error || 'Неизвестная ошибка'), 'error');
           }
         } catch (error) {
           console.error('Auth error:', error);
-          alert('Ошибка подключения к серверу');
+          showToast('Ошибка подключения к серверу', 'error');
         } finally {
           setIsProcessing(false);
         }
       } else {
-        // Проверяем сохранённого пользователя в localStorage
         const savedUser = localStorage.getItem('tg_user');
         if (savedUser) {
           try {
@@ -70,7 +93,6 @@ export default function ProfilePage() {
     checkAuthCode();
   }, []);
 
-  // Обработчик успешного входа (через postMessage)
   const handleAuth = async (authData) => {
     setIsProcessing(true);
     try {
@@ -85,27 +107,26 @@ export default function ProfilePage() {
       if (data.valid && data.user) {
         setUser(data.user);
         localStorage.setItem('tg_user', JSON.stringify(data.user));
-        alert('✅ Успешный вход!');
+        showToast('✅ Успешный вход!', 'success');
       } else {
-        alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
+        showToast('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'), 'error');
       }
     } catch (error) {
       console.error('Auth error:', error);
-      alert('Ошибка подключения к серверу');
+      showToast('Ошибка подключения к серверу', 'error');
     } finally {
       setIsProcessing(false);
     }
   };
 
-  // Выход из аккаунта
   const handleLogout = () => {
     if (typeof window !== 'undefined') {
       localStorage.removeItem('tg_user');
     }
     setUser(null);
+    showToast('Вы вышли из аккаунта', 'info');
   };
 
-  // Экран загрузки
   if (isLoading || isProcessing) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
@@ -118,6 +139,7 @@ export default function ProfilePage() {
             {isProcessing ? 'Выполняется вход...' : 'Загрузка...'}
           </p>
         </div>
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
       </div>
     );
   }
@@ -131,11 +153,12 @@ export default function ProfilePage() {
 
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
         <Navbar />
+        
+        {toast && <Toast {...toast} onClose={() => setToast(null)} />}
 
         <main className="container mx-auto px-4 pt-32 pb-16">
           <div className="max-w-2xl mx-auto">
             
-            {/* Форма входа */}
             {!user ? (
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 text-center">
                 <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6">
@@ -151,7 +174,6 @@ export default function ProfilePage() {
                   Войдите через Telegram для доступа к личному кабинету
                 </p>
 
-                {/* Компонент аутентификации */}
                 <TelegramAuth onAuth={handleAuth} />
 
                 <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
@@ -172,13 +194,10 @@ export default function ProfilePage() {
                 </div>
               </div>
             ) : (
-              /* Профиль пользователя */
               <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden">
-                {/* Шапка профиля */}
                 <div className="bg-gradient-to-r from-blue-500 to-purple-600 h-32"></div>
                 
                 <div className="px-8 pb-8">
-                  {/* Аватарка */}
                   <div className="relative -mt-16 mb-6">
                     <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white dark:border-gray-800 shadow-lg bg-white">
                       {user.photo_url || user.picture ? (
@@ -203,7 +222,6 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* Информация */}
                   <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                     {user.name || user.first_name || 'Пользователь'}
                   </h1>
@@ -213,7 +231,6 @@ export default function ProfilePage() {
                     </p>
                   ) : null}
 
-                  {/* Детали */}
                   <div className="space-y-3 mb-8 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
                     <div className="flex items-center gap-3 text-gray-700 dark:text-gray-300">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -233,7 +250,6 @@ export default function ProfilePage() {
                     )}
                   </div>
 
-                  {/* Кнопка выхода */}
                   <button 
                     onClick={handleLogout}
                     className="w-full bg-red-500 hover:bg-red-600 text-white py-3 px-6 rounded-xl font-semibold transition-colors flex items-center justify-center gap-2"
