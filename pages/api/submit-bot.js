@@ -1,75 +1,64 @@
 // pages/api/submit-bot.js
+import { readFile, writeFile } from 'fs/promises';
+import { join } from 'path';
+import { sendAdminNotification } from '../../lib/notifications';
+
+const SUBMISSIONS_FILE = join(process.cwd(), 'data', 'submissions.json');
+
 export default async function handler(req, res) {
-  // Разрешаем только POST запросы
   if (req.method !== 'POST') {
-    return res.status(405).json({ message: 'Method not allowed' });
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { name, username, description, category, avatar, contact } = req.body;
+  const { name, username, category, description, contact } = req.body;
 
-  // Валидация на сервере
-  if (!name?.trim() || !username?.trim() || !description?.trim()) {
-    return res.status(400).json({ message: 'Заполните обязательные поля' });
+  // Валидация
+  if (!name || !username || !category) {
+    return res.status(400).json({ error: 'Заполните все обязательные поля' });
   }
 
-  // Получаем данные из переменных окружения
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-  const CHAT_ID = process.env.TELEGRAM_ADMIN_CHAT_ID;
-
-  if (!BOT_TOKEN || !CHAT_ID) {
-    console.error('❌ Telegram credentials not configured');
-    return res.status(500).json({ message: 'Ошибка конфигурации сервера' });
-  }
-
-  // Формируем красивое сообщение
-  const message = `
-🤖 <b>Новая заявка на бота!</b>
-
-📛 <b>Название:</b> ${name}
-🔗 <b>Username:</b> @${username.replace('@', '')}
-📝 <b>Описание:</b> ${description}
-🏷 <b>Категория:</b> ${category || 'Не указана'}
-🖼 <b>Аватар:</b> ${avatar || 'Не указан'}
-👤 <b>Контакт:</b> ${contact || 'Не указан'}
-
-📅 <b>Дата:</b> ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}
-🌐 <b>С сайта:</b> tegbi.vercel.app/botcreate
-  `.trim();
-
-  // Отправляем в Telegram
+  // Читаем текущие заявки
+  let data;
   try {
-    const response = await fetch(
-      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          chat_id: CHAT_ID,
-          text: message,
-          parse_mode: 'HTML'
-        })
-      }
-    );
-
-    const data = await response.json();
-
-    if (data.ok) {
-      return res.status(200).json({ 
-        success: true, 
-        message: 'Заявка отправлена!' 
-      });
-    } else {
-      console.error('❌ Telegram API error:', data);
-      return res.status(500).json({ 
-        success: false, 
-        message: 'Ошибка отправки в Telegram' 
-      });
-    }
-  } catch (error) {
-    console.error('❌ Submission error:', error);
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Ошибка сервера' 
-    });
+    const fileData = await readFile(SUBMISSIONS_FILE, 'utf8');
+    data = JSON.parse(fileData);
+  } catch {
+    data = { submissions: [], nextId: 1 };
   }
+
+  // Создаём заявку
+  const submission = {
+    id: data.nextId,
+    name: name.trim(),
+    username: username.trim().replace('@', ''),
+    category: category.trim(),
+    description: description?.trim() || '',
+    contact: contact?.trim() || '',
+    status: 'pending', // pending, approved, rejected
+    createdAt: new Date().toISOString(),
+    reviewedAt: null,
+    reviewedBy: null,
+    botUrl: null,
+    botUsername: null,
+  };
+
+  // Сохраняем
+  data.submissions.push(submission);
+  data.nextId += 1;
+  await writeFile(SUBMISSIONS_FILE, JSON.stringify(data, null, 2));
+
+  // 🔔 Уведомляем админа в Telegram
+  try {
+    await sendAdminNotification(submission);
+  } catch (err) {
+    console.error('Failed to send admin notification:', err);
+    // Не блокируем ответ пользователю
+  }
+
+  // Ответ пользователю
+  return res.status(201).json({
+    success: true,
+    message: 'Заявка отправлена! Ожидайте проверки.',
+    submissionId: submission.id,
+  });
 }
