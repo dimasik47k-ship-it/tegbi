@@ -18,7 +18,7 @@ export default async function handler(req, res) {
     // 🔥 Возвращаем пустую статистику (или используй Vercel Analytics API)
     return res.status(200).json({
       success: true,
-       {
+      data: {  // ✅ КЛЮЧ "data:" ДОБАВЛЕН!
         pageViews: [],
         uniqueVisitors: 0,
         popularPages: [],
