@@ -1,9 +1,5 @@
-// pages/api/submit-bot.js
-import { readFile, writeFile } from 'fs/promises';
-import { join } from 'path';
+import { kv } from '@vercel/kv';
 import { sendAdminNotification } from '../../lib/notifications';
-
-const SUBMISSIONS_FILE = join(process.cwd(), 'data', 'submissions.json');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -12,29 +8,24 @@ export default async function handler(req, res) {
 
   const { name, username, category, description, contact } = req.body;
 
-  // Валидация
   if (!name || !username || !category) {
     return res.status(400).json({ error: 'Заполните все обязательные поля' });
   }
 
-  // Читаем текущие заявки
-  let data;
-  try {
-    const fileData = await readFile(SUBMISSIONS_FILE, 'utf8');
-    data = JSON.parse(fileData);
-  } catch {
-    data = { submissions: [], nextId: 1 };
-  }
+  // Получаем следующий ID
+  const nextId = (await kv.get('submissions:nextId')) || 0;
+  const newId = nextId + 1;
+  
+  await kv.set('submissions:nextId', newId);
 
-  // Создаём заявку
   const submission = {
-    id: data.nextId,
+    id: newId,
     name: name.trim(),
     username: username.trim().replace('@', ''),
     category: category.trim(),
     description: description?.trim() || '',
     contact: contact?.trim() || '',
-    status: 'pending', // pending, approved, rejected
+    status: 'pending',
     createdAt: new Date().toISOString(),
     reviewedAt: null,
     reviewedBy: null,
@@ -43,22 +34,19 @@ export default async function handler(req, res) {
   };
 
   // Сохраняем
-  data.submissions.push(submission);
-  data.nextId += 1;
-  await writeFile(SUBMISSIONS_FILE, JSON.stringify(data, null, 2));
+  await kv.set(`submissions:${newId}`, submission);
+  await kv.lpush('submissions:list', newId);
 
-  // 🔔 Уведомляем админа в Telegram
+  // 🔔 Уведомляем админа
   try {
     await sendAdminNotification(submission);
   } catch (err) {
-    console.error('Failed to send admin notification:', err);
-    // Не блокируем ответ пользователю
+    console.error('Failed to send notification:', err);
   }
 
-  // Ответ пользователю
   return res.status(201).json({
     success: true,
     message: 'Заявка отправлена! Ожидайте проверки.',
-    submissionId: submission.id,
+    submissionId: newId,
   });
 }
