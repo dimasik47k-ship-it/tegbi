@@ -1,7 +1,7 @@
 // pages/api/submissions/[id]/status.js
 import { readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
-import { sendApprovalEmail } from '../../../lib/notifications';
+import { sendApprovalEmail } from '../../../../lib/notifications';
 
 const SUBMISSIONS_FILE = join(process.cwd(), 'data', 'submissions.json');
 
