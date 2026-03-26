@@ -1,3 +1,4 @@
+// pages/api/submit-bot.js
 import { kv } from '@vercel/kv';
 import { sendAdminNotification } from '../../lib/notifications';
 
@@ -12,14 +13,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Заполните все обязательные поля' });
   }
 
-  // Получаем следующий ID
-  const nextId = (await kv.get('submissions:nextId')) || 0;
-  const newId = nextId + 1;
+  // Получаем следующий ID через KV
+  let nextId = await kv.get('submissions:nextId');
+  nextId = nextId ? parseInt(nextId) + 1 : 1;
   
-  await kv.set('submissions:nextId', newId);
-
   const submission = {
-    id: newId,
+    id: nextId,
     name: name.trim(),
     username: username.trim().replace('@', ''),
     category: category.trim(),
@@ -33,9 +32,10 @@ export default async function handler(req, res) {
     botUsername: null,
   };
 
-  // Сохраняем
-  await kv.set(`submissions:${newId}`, submission);
-  await kv.lpush('submissions:list', newId);
+  // Сохраняем в KV
+  await kv.set(`submissions:${nextId}`, submission);
+  await kv.set('submissions:nextId', nextId);
+  await kv.lpush('submissions:list', nextId);
 
   // 🔔 Уведомляем админа
   try {
@@ -47,6 +47,6 @@ export default async function handler(req, res) {
   return res.status(201).json({
     success: true,
     message: 'Заявка отправлена! Ожидайте проверки.',
-    submissionId: newId,
+    submissionId: nextId,
   });
 }

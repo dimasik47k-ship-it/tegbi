@@ -1,4 +1,4 @@
-// Добавь в pages/_app.js
+// pages/_app.js
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { initTheme } from '../lib/theme';
@@ -11,19 +11,25 @@ function MyApp({ Component, pageProps }) {
   useEffect(() => {
     initTheme();
 
-    // Трекинг просмотров
-    const handleRouteChange = (path) => {
-      if (typeof window !== 'undefined') {
-        fetch('/api/analytics', {
+    // 🔥 Безопасный трекинг: не блокирует работу если API не отвечает
+    const handleRouteChange = async (path) => {
+      if (typeof window === 'undefined') return;
+      
+      try {
+        await fetch('/api/analytics', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ path }),
-        }).catch(console.error);
+          keepalive: true, // не блокирует навигацию
+        });
+      } catch (err) {
+        // 🔥 Игнорируем ошибки — Vercel Speed Insights уже собирает метрики
+        console.debug('Analytics tracking skipped:', err);
       }
     };
 
     router.events.on('routeChangeComplete', handleRouteChange);
-    handleRouteChange(router.pathname); // Первый просмотр
+    handleRouteChange(router.pathname);
 
     return () => {
       router.events.off('routeChangeComplete', handleRouteChange);
